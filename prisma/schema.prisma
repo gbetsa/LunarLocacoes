@@ -3,12 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Category {
-  id        String    @id @default(cuid())
+  id        String    @id @default(uuid())
   name      String    @unique
   products  Product[] @relation("ProductToCategory")
   createdAt DateTime  @default(now())
@@ -16,7 +16,7 @@ model Category {
 }
 
 model Product {
-  id             String     @id @default(cuid())
+  id             String     @id @default(uuid())
   name           String
   description    String
   available      Boolean    @default(true)
@@ -29,4 +29,13 @@ model Product {
   tags           String? // String separada por vírgulas ou JSON
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

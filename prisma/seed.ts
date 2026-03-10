@@ -1,8 +1,24 @@
 import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 const prisma = new PrismaClient()
 
 async function main() {
     console.log('Iniciando seed...')
+
+    // Criar usuário admin inicial
+    const adminEmail = 'admin@lunarlocacoes.com.br'
+    const hashedPassword = await bcrypt.hash('admin123', 10)
+
+    await prisma.user.upsert({
+        where: { email: adminEmail },
+        update: {},
+        create: {
+            email: adminEmail,
+            password: hashedPassword,
+            name: 'Administrador Lunar'
+        }
+    })
+    console.log('Usuário admin criado/verificado.')
 
     // Categorias baseadas no mock original
     const categoriesData = [
