@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useWhatsApp } from '@/context/WhatsAppContext';
 
 // ── Tipos ──────────────────────────────────────────────────────────────────
 export interface Product {
@@ -85,13 +86,16 @@ function CategoryIcon({ name, className = 'w-4 h-4' }: { name: string; className
 
 // ── Card de Produto ──────────────────────────────────────────────────────
 function ProductCard({ product }: { product: Product }) {
-    const WHATSAPP_NUMBER = '5511963119191';
+    const { getWhatsAppLink } = useWhatsApp();
     const message = encodeURIComponent(
         product.available
             ? `Olá! Tenho interesse em alugar: ${product.name}`
             : `Olá! Tenho interesse no item ${product.name}, porém vi no site que está indisponível no momento. Gostaria de solicitar uma reserva ou saber a previsão de disponibilidade.`
     );
-    const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+    const waLink = getWhatsAppLink(product.available
+        ? `Olá! Tenho interesse em alugar: ${product.name}`
+        : `Olá! Tenho interesse no item ${product.name}, porém vi no site que está indisponível no momento. Gostaria de solicitar uma reserva ou saber a previsão de disponibilidade.`
+    );
 
     return (
         <div
@@ -198,6 +202,7 @@ function ProductCard({ product }: { product: Product }) {
 
 // ── Seção Principal ──────────────────────────────────────────────────────
 export default function ProductsSection({ initialProducts, categories }: ProductsSectionProps) {
+    const { getWhatsAppLink } = useWhatsApp();
     const router = useRouter();
     const searchParams = useSearchParams();
     const sectionRef = useRef<HTMLElement>(null);
@@ -279,7 +284,7 @@ export default function ProductsSection({ initialProducts, categories }: Product
                     <div>
                         <div className="flex items-center gap-3">
                             <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900">
-                                {searchQuery ? `Resultados para "${searchQuery}"` : 'Explorar de Equipamentos'}
+                                {searchQuery ? `Resultados para "${searchQuery}"` : 'Explorar Catálogo'}
                             </h2>
                             <span className="bg-[#1e3a8a]/10 text-[#1e3a8a] text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                                 {filtered.length} {filtered.length === 1 ? 'item' : 'itens'}
@@ -364,7 +369,7 @@ export default function ProductsSection({ initialProducts, categories }: Product
 
             {/* Botão flutuante do WhatsApp */}
             <a
-                href="https://wa.me/5511963119191"
+                href={getWhatsAppLink()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all hover:scale-110 active:scale-95 cursor-pointer"

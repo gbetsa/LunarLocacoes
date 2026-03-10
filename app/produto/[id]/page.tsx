@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ProductGallery from '@/components/ProductGallery';
 
+import { settingsService } from '@/lib/services/SettingsService';
+
 interface Props {
     params: Promise<{ id: string }>;
 }
@@ -16,13 +18,11 @@ export default async function ProductDetailPage({ params }: Props) {
         notFound();
     }
 
-    const WHATSAPP_NUMBER = '5511963119191';
-    const message = encodeURIComponent(
-        product.available
-            ? `Olá! Gostaria de solicitar um orçamento para o item: ${product.name}`
-            : `Olá! Tenho interesse no item ${product.name}, porém vi no site que está indisponível no momento. Gostaria de solicitar uma reserva ou saber a previsão de disponibilidade.`
-    );
-    const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+    const message = product.available
+        ? `Olá! Gostaria de solicitar um orçamento para o item: ${product.name}`
+        : `Olá! Tenho interesse no item ${product.name}, porém vi no site que está indisponível no momento. Gostaria de solicitar uma reserva ou saber a previsão de disponibilidade.`;
+
+    const waLink = await settingsService.getWhatsAppLink(message);
 
     const images = product.images.length > 0 ? product.images : ['/assets/placeholder-product.jpg'];
 
@@ -96,6 +96,21 @@ export default async function ProductDetailPage({ params }: Props) {
                                         {product.description || 'Produto de alta qualidade disponível para locação. Entre em contato para mais detalhes e especificações.'}
                                     </p>
                                 </div>
+
+                                {/* Especificações Técnicas */}
+                                {product.specifications && Array.isArray(product.specifications) && product.specifications.length > 0 && (
+                                    <div className="mb-10">
+                                        <h2 className="text-lg font-bold text-gray-900 mb-3 border-b pb-2">Especificações Técnicas</h2>
+                                        <div className="space-y-3">
+                                            {product.specifications.map((spec: any, index: number) => (
+                                                <div key={index} className="flex justify-between items-center py-1 border-b border-gray-100 last:border-0">
+                                                    <span className="text-sm text-gray-500 font-medium">{spec.label}</span>
+                                                    <span className="text-sm text-gray-900 font-bold">{spec.value}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Botão WhatsApp */}
                                 <a

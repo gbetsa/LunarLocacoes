@@ -23,6 +23,9 @@ interface Product {
     category?: Category | null;
     tags?: string | null;
     images?: string[];
+    rentalPeriod: string;
+    minQuantity: number;
+    specifications?: any;
 }
 
 interface AdminProductListProps {
