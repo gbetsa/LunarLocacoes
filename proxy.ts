@@ -8,7 +8,7 @@ if (!process.env.JWT_SECRET) {
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const token = request.cookies.get('auth_token')?.value;
 
     // Rotas da API que precisam de proteção (Modificações)
@@ -48,7 +48,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
 }
 
-// Configurar as rotas que o middleware deve observar
+// Configurar as rotas que o proxy deve observar
 export const config = {
     matcher: ['/api/:path*', '/admin/:path*'],
 };

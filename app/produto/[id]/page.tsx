@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { productService } from '@/lib/services/ProductService';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -9,6 +10,26 @@ import { settingsService } from '@/lib/services/SettingsService';
 interface Props {
     params: Promise<{ id: string }>;
 }
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { id } = await params;
+    const product = await productService.getProductById(id);
+
+    if (!product) {
+        return { title: "Produto não encontrado" };
+    }
+
+    return {
+        title: product.name,
+        description: product.description,
+        openGraph: {
+            title: `${product.name} | Lunar Locações`,
+            description: product.description,
+            images: product.images?.[0] ? [{ url: product.images[0] }] : [],
+        },
+    };
+}
+
 
 export default async function ProductDetailPage({ params }: Props) {
     const { id } = await params;

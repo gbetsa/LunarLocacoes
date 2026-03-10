@@ -19,8 +19,56 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Lunar Locações",
-  description: "Transforme suas necessidades em soluções de locação imediata",
+  title: {
+    default: "Lunar Locações | Equipamentos e Soluções para Locação",
+    template: "%s | Lunar Locações",
+  },
+  description:
+    "Equipamentos, mobiliários e itens diversos para locação com qualidade, rapidez e praticidade. Transforme suas necessidades em soluções de locação imediata.",
+  keywords: [
+    "locação de equipamentos",
+    "aluguel de equipamentos",
+    "locação de móveis",
+    "lunar locações",
+    "equipamentos para eventos",
+    "aluguel de itens",
+  ],
+  authors: [{ name: "Lunar Locações" }],
+  creator: "Lunar Locações",
+  metadataBase: new URL("https://lunarlocacoes.com.br"),
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    url: "https://lunarlocacoes.com.br",
+    siteName: "Lunar Locações",
+    title: "Lunar Locações | Equipamentos e Soluções para Locação",
+    description:
+      "Equipamentos, mobiliários e itens diversos para locação com qualidade, rapidez e praticidade.",
+    images: [
+      {
+        url: "/assets/lunar-logo.png",
+        width: 512,
+        height: 512,
+        alt: "Lunar Locações Logo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "Lunar Locações | Equipamentos e Soluções para Locação",
+    description:
+      "Equipamentos, mobiliários e itens diversos para locação com qualidade, rapidez e praticidade.",
+    images: ["/assets/lunar-logo.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+    },
+  },
 };
 
 export default async function RootLayout({
