@@ -1,16 +1,23 @@
 import Hero from "@/components/Hero";
 import ProductsSection from "@/components/ProductsSection";
-import Footer from "@/components/Footer";
 import { Suspense } from 'react';
+import { productService } from "@/lib/services/ProductService";
+import { categoryService } from "@/lib/services/CategoryService";
 
-export default function Home() {
+export default async function Home() {
+  // Busca os dados iniciais no servidor para SEO e performance
+  const products = await productService.getAllProducts();
+  const categories = await categoryService.getCategoriesWithProducts();
+
   return (
     <main>
       <Hero />
-      <Suspense fallback={<div>Carregando produtos...</div>}>
-        <ProductsSection />
+      <Suspense fallback={<div className="py-20 text-center text-gray-500">Carregando catálogo...</div>}>
+        <ProductsSection
+          initialProducts={JSON.parse(JSON.stringify(products))}
+          categories={JSON.parse(JSON.stringify(categories))}
+        />
       </Suspense>
-      <Footer />
     </main>
   );
 }

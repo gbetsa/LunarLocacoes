@@ -13,6 +13,22 @@ export class CategoryRepository {
         });
     }
 
+    async findWithProducts() {
+        return prisma.category.findMany({
+            where: {
+                products: {
+                    some: {}
+                }
+            },
+            orderBy: { name: 'asc' },
+            include: {
+                _count: {
+                    select: { products: true }
+                }
+            }
+        });
+    }
+
     async findById(id: string) {
         return prisma.category.findUnique({
             where: { id }

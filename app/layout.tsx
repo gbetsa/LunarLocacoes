@@ -18,18 +18,22 @@ export const metadata: Metadata = {
 };
 
 import ClientLayout from "@/components/ClientLayout";
+import { categoryService } from "@/lib/services/CategoryService";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Busca categorias ativas para o Navbar global (Server Side)
+  const categories = await categoryService.getCategoriesWithProducts();
+
   return (
     <html lang="pt-BR">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ClientLayout>
+        <ClientLayout categories={JSON.parse(JSON.stringify(categories))}>
           {children}
         </ClientLayout>
       </body>

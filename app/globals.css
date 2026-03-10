@@ -58,23 +58,30 @@ body {
   scrollbar-width: none;
 }
 
-/* Custom Scrollbar Premium */
+/* Custom Scrollbar Premium - Cores Sólidas e Alto Contraste */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #1e3a8a #f1f1f1;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
+  background: #f1f1f1;
   border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: #1e3a8a;
+  /* Azul marinho 100% opaco */
   border-radius: 4px;
+  border: 2px solid #f1f1f1;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(216, 194, 138, 0.5);
-  /* Dourado da paleta */
+  background: #D8C28A;
+  /* Dourado 100% opaco */
 }

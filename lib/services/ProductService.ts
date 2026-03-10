@@ -2,7 +2,7 @@ import { productRepository, ProductFilter } from '../repositories/ProductReposit
 import { uploadService } from './UploadService';
 
 export class ProductService {
-    async getAllProducts(filters: ProductFilter) {
+    async getAllProducts(filters: ProductFilter = {}) {
         return productRepository.findAll(filters);
     }
 
