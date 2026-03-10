@@ -1,7 +1,16 @@
+import Hero from "@/components/Hero";
+import ProductsSection from "@/components/ProductsSection";
+import Footer from "@/components/Footer";
+import { Suspense } from 'react';
+
 export default function Home() {
   return (
-    <div>
-      <h1>Home</h1>
-    </div>
+    <main>
+      <Hero />
+      <Suspense fallback={<div>Carregando produtos...</div>}>
+        <ProductsSection />
+      </Suspense>
+      <Footer />
+    </main>
   );
 }
