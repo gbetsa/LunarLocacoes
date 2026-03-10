@@ -1,4 +1,4 @@
-import { put } from '@vercel/blob';
+import { put, del } from '@vercel/blob';
 import sharp from 'sharp';
 
 export class UploadService {
@@ -37,6 +37,20 @@ export class UploadService {
         } catch (error) {
             console.error('Erro no UploadService com Sharp (WebP):', error);
             throw new Error('Falha ao processar e fazer upload da imagem');
+        }
+    }
+
+    /**
+     * Deleta uma imagem do Vercel Blob
+     * @param url URL da imagem no Vercel Blob
+     */
+    async deleteImage(url: string): Promise<void> {
+        try {
+            if (url && url.includes('.vercel-storage.com')) {
+                await del(url);
+            }
+        } catch (error) {
+            console.error(`Erro ao deletar imagem ${url} do Vercel Blob:`, error);
         }
     }
 }

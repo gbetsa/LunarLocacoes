@@ -2,14 +2,16 @@ import { categoryController } from '@/lib/controllers/CategoryController';
 
 export async function PUT(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    return categoryController.update(request, params.id);
+    const { id } = await params;
+    return categoryController.update(request, id);
 }
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    return categoryController.delete(params.id);
+    const { id } = await params;
+    return categoryController.delete(id);
 }

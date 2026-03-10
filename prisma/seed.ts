@@ -98,6 +98,11 @@ async function main() {
 
     console.log('Criando produtos...')
     for (const p of products) {
+        // Usa o ID da primeira categoria da lista
+        const primaryCategoryId = p.categories[0] ? catMap[p.categories[0]] : undefined;
+        // As demais categorias viram tags
+        const extraTags = p.categories.slice(1).join(', ');
+
         await prisma.product.create({
             data: {
                 name: p.name,
@@ -106,9 +111,9 @@ async function main() {
                 rentalPeriod: p.rentalPeriod,
                 minQuantity: p.minQuantity,
                 specifications: p.specifications,
-                categories: {
-                    connect: p.categories.map(name => ({ id: catMap[name] }))
-                }
+                categoryId: primaryCategoryId || null,
+                tags: extraTags || null,
+                images: [],
             }
         })
     }
