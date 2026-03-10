@@ -5,20 +5,35 @@ const prisma = new PrismaClient()
 async function main() {
     console.log('Iniciando seed...')
 
-    // Criar usuário admin inicial
-    const adminEmail = 'admin@lunarlocacoes.com.br'
-    const hashedPassword = await bcrypt.hash('admin123', 10)
+    // Criar usuário admin inicial usando variáveis de ambiente ou fallbacks seguros
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@lunarlocacoes.com.br'
+    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'
+    const hashedPassword = await bcrypt.hash(adminPassword, 10)
 
-    await prisma.user.upsert({
-        where: { email: adminEmail },
-        update: {},
-        create: {
-            email: adminEmail,
-            password: hashedPassword,
-            name: 'Administrador Lunar'
-        }
+    const adminName = 'Administrador Lunar Eventos'
+    const existingAdmin = await prisma.user.findFirst({
+        where: { name: adminName }
     })
-    console.log('Usuário admin criado/verificado.')
+
+    if (existingAdmin) {
+        await prisma.user.update({
+            where: { id: existingAdmin.id },
+            data: {
+                email: adminEmail,
+                password: hashedPassword,
+            }
+        })
+        console.log('Usuário admin atualizado.')
+    } else {
+        await prisma.user.create({
+            data: {
+                email: adminEmail,
+                password: hashedPassword,
+                name: adminName
+            }
+        })
+        console.log('Usuário admin criado.')
+    }
 
     // Categorias baseadas no mock original
     const categoriesData = [
