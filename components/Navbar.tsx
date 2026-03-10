@@ -3,9 +3,24 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function Navbar() {
-    const [query, setQuery] = useState('');
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const [query, setQuery] = useState(searchParams.get('search') || '');
+
+    const handleSearch = () => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (query.trim()) {
+            params.set('search', query.trim());
+        } else {
+            params.delete('search');
+        }
+        // Ao buscar, limpamos a categoria para mostrar todos os resultados
+        params.delete('category');
+        router.push(`/?${params.toString()}`);
+    };
 
     return (
         <nav
@@ -15,7 +30,7 @@ export default function Navbar() {
                 backdropFilter: 'blur(8px)',
             }}
         >
-            {/* Logo */}
+            {/* Logotipo */}
             <Link href="/" className="flex items-center gap-3 group shrink-0">
                 <div className="relative w-9 h-9">
                     <Image
@@ -31,7 +46,7 @@ export default function Navbar() {
                 </span>
             </Link>
 
-            {/* Search Bar — ocupa o espaço disponível */}
+            {/* Barra de busca */}
             <div className="w-full max-w-md mx-auto">
                 <div
                     className="flex items-center overflow-hidden"
@@ -60,11 +75,13 @@ export default function Navbar() {
                             type="text"
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                             placeholder="Buscar itens para locação..."
                             className="bg-transparent border-none outline-none w-full py-2.5 text-sm text-white placeholder-white/40"
                         />
                     </div>
                     <button
+                        onClick={handleSearch}
                         className="shrink-0 m-1 px-5 py-2 rounded-[8px] text-xs font-semibold transition-all hover:brightness-110 active:scale-95"
                         style={{
                             background: 'linear-gradient(135deg, #1e3a8a, #2b52c8)',
@@ -77,7 +94,7 @@ export default function Navbar() {
                 </div>
             </div>
 
-            {/* Nav Links */}
+            {/* Links de navegação */}
             <div className="hidden md:flex items-center gap-7 text-sm font-medium text-white/75 shrink-0">
                 <Link
                     href="/"
@@ -85,13 +102,36 @@ export default function Navbar() {
                 >
                     Home
                 </Link>
-                <div className="group relative">
+                <div className="group relative py-2">
                     <button className="flex items-center gap-1.5 hover:text-white transition-colors focus:outline-none">
                         Categorias
                         <svg className="w-3.5 h-3.5 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
+
+                    {/* Submenu de categorias */}
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 transition-all duration-300 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0">
+                        <div
+                            className="bg-[#040e3c]/95 border border-white/10 rounded-xl py-3 w-56 shadow-2xl backdrop-blur-xl"
+                            style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.5)' }}
+                        >
+                            {[
+                                'Mobiliário', 'Iluminação', 'Decoração', 'Tecnologia',
+                                'Ferramentas', 'Equipamentos', 'Eletrodomésticos',
+                                'Veículos', 'Estruturas'
+                            ].map((cat) => (
+                                <Link
+                                    key={cat}
+                                    href={`/?category=${cat}`}
+                                    scroll={false}
+                                    className="block px-6 py-2.5 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-all text-center"
+                                >
+                                    {cat}
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
                 </div>
                 <Link
                     href="/contato"
@@ -101,7 +141,7 @@ export default function Navbar() {
                 </Link>
             </div>
 
-            {/* Mobile */}
+            {/* Menu Mobile */}
             <div className="md:hidden ml-auto">
                 <button className="p-2 text-white/70 hover:text-white transition-colors">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -6,7 +6,7 @@ export default function Footer() {
             <div className="max-w-7xl mx-auto px-6 md:px-10">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-20">
 
-                    {/* Brand */}
+                    {/* Marca e Slogan */}
                     <div className="flex flex-col gap-4">
                         <h3 className="text-lg font-bold" style={{ color: '#D8C28A' }}>Lunar Locações</h3>
                         <div className="flex flex-col gap-1.5 opacity-90 text-sm">
@@ -15,7 +15,7 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    {/* Contact */}
+                    {/* Informações de Contato */}
                     <div className="flex flex-col gap-4">
                         <h3 className="text-lg font-bold" style={{ color: '#D8C28A' }}>Contato</h3>
                         <div className="flex flex-col gap-1.5 opacity-90 text-sm">
@@ -31,7 +31,7 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    {/* Business Hours */}
+                    {/* Horários */}
                     <div className="flex flex-col gap-4">
                         <h3 className="text-lg font-bold" style={{ color: '#D8C28A' }}>Horário de Atendimento</h3>
                         <div className="flex flex-col gap-1.5 opacity-90 text-sm">
@@ -43,7 +43,7 @@ export default function Footer() {
 
                 </div>
 
-                {/* Bottom Bar */}
+                {/* Rodapé inferior */}
                 <div className="mt-16 pt-8 border-t border-white/10 text-center">
                     <p className="text-xs opacity-70">
                         &copy; 2026 Lunar Locações. Todos os direitos reservados.

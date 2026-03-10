@@ -4,29 +4,29 @@ export default function Hero() {
             className="relative flex flex-col items-center justify-center text-center overflow-hidden"
             style={{ minHeight: '88vh' }}
         >
-            {/* ── Background Photo ── */}
+            {/* ── Foto de Fundo ── */}
             <div
                 className="absolute inset-0 bg-cover bg-center scale-105"
                 style={{ backgroundImage: `url('/assets/hero-events.jpg')` }}
             />
 
-            {/* ── Multi-layer blue tint ── */}
-            {/* Base deep blue */}
+            {/* ── Filtros de Cor (Azul) ── */}
+            {/* Azul profundo base */}
             <div className="absolute inset-0" style={{ background: 'rgba(8, 28, 90, 0.72)' }} />
-            {/* Vignette: edges darker */}
+            {/* Vinheta: bordas mais escuras */}
             <div className="absolute inset-0" style={{
                 background: 'radial-gradient(ellipse at center, transparent 30%, rgba(4, 14, 50, 0.65) 100%)'
             }} />
-            {/* Top fade for nav readability */}
+            {/* Degradê superior para leitura do menu */}
             <div className="absolute inset-x-0 top-0 h-40" style={{
                 background: 'linear-gradient(to bottom, rgba(4, 14, 50, 0.6), transparent)'
             }} />
-            {/* Bottom fade for search bar blend */}
+            {/* Degradê inferior para mesclar com a busca */}
             <div className="absolute inset-x-0 bottom-0 h-48" style={{
                 background: 'linear-gradient(to top, rgba(4, 14, 50, 0.85), transparent)'
             }} />
 
-            {/* ── Ambient glow spots ── */}
+            {/* ── Pontos de Brilho Ambiente ── */}
             <div className="absolute pointer-events-none" style={{
                 top: '20%', left: '10%',
                 width: 500, height: 500,
@@ -42,10 +42,10 @@ export default function Hero() {
                 filter: 'blur(50px)',
             }} />
 
-            {/* ── Main Content ── */}
+            {/* ── Conteúdo Principal ── */}
             <div className="relative z-10 flex flex-col items-center gap-7 px-6 pt-36 pb-36 max-w-4xl w-full mx-auto">
 
-                {/* Badge */}
+                {/* Selo de Destaque */}
                 <div
                     className="inline-flex items-center gap-2 px-5 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest"
                     style={{
@@ -60,7 +60,7 @@ export default function Hero() {
                     <span>✦</span>
                 </div>
 
-                {/* Heading */}
+                {/* Título Principal */}
                 <h1
                     className="font-extrabold leading-[1.12] tracking-tight"
                     style={{
@@ -83,10 +83,10 @@ export default function Hero() {
                     </span>
                 </h1>
 
-                {/* Divider line */}
+                {/* Linha Divisória */}
                 <div className="w-16 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(216,194,138,0.65), transparent)' }} />
 
-                {/* Subtext */}
+                {/* Subtexto */}
                 <p
                     className="text-base md:text-lg max-w-2xl leading-relaxed"
                     style={{ color: 'rgba(220, 232, 255, 0.85)' }}

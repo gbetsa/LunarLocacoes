@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 
-// ── Types ──────────────────────────────────────────────────────────────────
+// ── Tipos ──────────────────────────────────────────────────────────────────
 interface Product {
     id: number;
     name: string;
@@ -12,7 +13,7 @@ interface Product {
     whatsapp: string;
 }
 
-// ── Mock data ──────────────────────────────────────────────────────────────
+// ── Dados de Exemplo ──────────────────────────────────────────────────────
 const ALL_PRODUCTS: Product[] = [
     { id: 1, name: 'Cadeira Dobrável Reforçada', available: true, rentalPeriod: '5 dias', categories: ['Mobiliário', 'Festas'], whatsapp: '' },
     { id: 2, name: 'Luminária LED Industrial 100W', available: false, rentalPeriod: '1 dia', categories: ['Iluminação', 'Eventos'], whatsapp: '' },
@@ -33,7 +34,7 @@ const CATEGORY_ROWS = [
     ['Eletrodomésticos', 'Veículos', 'Estruturas'],
 ];
 
-// ── Category SVG icons ──────────────────────────────────────────────────────
+// ── Ícones das Categorias (SVG) ───────────────────────────────────────────
 function CategoryIcon({ name, className = 'w-4 h-4' }: { name: string; className?: string }) {
     const props = { className, fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24', strokeWidth: 1.75, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
     switch (name) {
@@ -64,7 +65,7 @@ function CategoryIcon({ name, className = 'w-4 h-4' }: { name: string; className
     }
 }
 
-// ── Product Card ──────────────────────────────────────────────────────────
+// ── Card de Produto ──────────────────────────────────────────────────────
 function ProductCard({ product }: { product: Product }) {
     const WHATSAPP_NUMBER = '5511963119191';
     const message = encodeURIComponent(`Olá! Tenho interesse em alugar: ${product.name}`);
@@ -79,7 +80,7 @@ function ProductCard({ product }: { product: Product }) {
                 boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
             }}
         >
-            {/* Category badges */}
+            {/* Etiquetas de categoria */}
             <div className="relative">
                 <div className="flex items-start justify-between gap-1 absolute top-3 left-3 right-3 z-10">
                     <div className="flex flex-wrap gap-1">
@@ -98,7 +99,7 @@ function ProductCard({ product }: { product: Product }) {
                     )}
                 </div>
 
-                {/* Image placeholder */}
+                {/* Placeholder da imagem */}
                 <div
                     className="w-full flex items-center justify-center"
                     style={{ height: 180, background: 'linear-gradient(135deg, #f3f4f6, #e9ebee)' }}
@@ -107,7 +108,7 @@ function ProductCard({ product }: { product: Product }) {
                 </div>
             </div>
 
-            {/* Info */}
+            {/* Informações */}
             <div className="flex flex-col gap-3 p-4 flex-1">
                 <h3 className="font-bold text-gray-900 text-sm leading-snug">{product.name}</h3>
 
@@ -122,7 +123,7 @@ function ProductCard({ product }: { product: Product }) {
                     Locação por {product.rentalPeriod}
                 </p>
 
-                {/* Actions */}
+                {/* Botões de Ação */}
                 <div className="flex gap-2 mt-auto pt-1">
                     <button
                         className="flex-1 py-2.5 rounded-lg text-xs font-bold text-white text-center transition-all hover:brightness-110 active:scale-95"
@@ -149,37 +150,87 @@ function ProductCard({ product }: { product: Product }) {
     );
 }
 
-// ── Main Section ──────────────────────────────────────────────────────────
+// ── Seção Principal ──────────────────────────────────────────────────────
 export default function ProductsSection() {
-    const [activeCategory, setActiveCategory] = useState('Todos');
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const sectionRef = useRef<HTMLElement>(null);
 
-    const filtered = activeCategory === 'Todos'
-        ? ALL_PRODUCTS
-        : ALL_PRODUCTS.filter((p) => p.categories.includes(activeCategory));
+    const [activeCategory, setActiveCategory] = useState('Todos');
+    const [searchQuery, setSearchQuery] = useState('');
+
+    // Sincroniza os filtros com os parâmetros da URL
+    useEffect(() => {
+        const cat = searchParams.get('category') || 'Todos';
+        const search = searchParams.get('search') || '';
+
+        setActiveCategory(cat);
+        setSearchQuery(search);
+
+        // Apenas rola se o usuário estiver na parte de cima ou de baixo, longe da seção
+        const rect = sectionRef.current?.getBoundingClientRect();
+        const isOutsideSection = rect && (rect.top > 100 || rect.bottom < 0);
+
+        if ((searchParams.get('category') || searchParams.get('search')) && isOutsideSection) {
+            sectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [searchParams]);
+
+    const handleCategoryChange = (cat: string) => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (cat === 'Todos') {
+            params.delete('category');
+        } else {
+            params.set('category', cat);
+        }
+        params.delete('search'); // Limpa a busca quando uma categoria é selecionada
+        router.push(`/?${params.toString()}`, { scroll: false });
+    };
+
+    const normalizeText = (text: string) => {
+        return text
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+            .replace(/[-\s]/g, ''); // Remove hifens e espaços para uma busca mais precisa
+    };
+
+    const filtered = ALL_PRODUCTS.filter((p) => {
+        const matchesCategory = activeCategory === 'Todos' || p.categories.includes(activeCategory);
+
+        if (!searchQuery) return matchesCategory;
+
+        const normalizedSearch = normalizeText(searchQuery);
+        const normalizedName = normalizeText(p.name);
+        const matchesSearch = normalizedName.includes(normalizedSearch) ||
+            p.categories.some(c => normalizeText(c).includes(normalizedSearch));
+
+        return matchesCategory && matchesSearch;
+    });
 
     return (
-        <section className="relative" style={{ background: '#f4f6fb', paddingTop: '5rem', paddingBottom: '4rem' }}>
+        <section id="produtos" ref={sectionRef} className="relative" style={{ background: '#f4f6fb', paddingTop: '5rem', paddingBottom: '4rem' }}>
             <div className="max-w-7xl mx-auto px-6 md:px-10">
 
-                {/* Header row */}
-                <div className="flex items-start justify-between gap-4 mb-2">
+                {/* Linha de cabeçalho */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
                     <div>
                         <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900">
-                            Itens Disponíveis para Locação
+                            {searchQuery ? `Resultados para "${searchQuery}"` : 'Itens Disponíveis para Locação'}
                         </h2>
                         <p className="text-sm text-gray-500 mt-1">
-                            Locações rápidas, confiáveis e com valores acessíveis.
+                            {searchQuery ? `Encontramos ${filtered.length} itens correspondentes.` : 'Locações rápidas, confiáveis e com valores acessíveis.'}
                         </p>
                     </div>
                     <span
-                        className="shrink-0 mt-1 text-xs font-bold text-white px-4 py-2 rounded-full"
+                        className="shrink-0 text-xs font-bold text-white px-4 py-2 rounded-full w-fit"
                         style={{ background: '#1e3a8a', whiteSpace: 'nowrap' }}
                     >
                         {filtered.length} {filtered.length === 1 ? 'item encontrado' : 'itens encontrados'}
                     </span>
                 </div>
 
-                {/* Category filters */}
+                {/* Filtros de categoria */}
                 <div className="mt-5 flex flex-col gap-2">
                     {CATEGORY_ROWS.map((row, ri) => (
                         <div key={ri} className="flex flex-wrap gap-2">
@@ -188,7 +239,7 @@ export default function ProductsSection() {
                                 return (
                                     <button
                                         key={cat}
-                                        onClick={() => setActiveCategory(cat)}
+                                        onClick={() => handleCategoryChange(cat)}
                                         className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all"
                                         style={{
                                             background: isActive ? '#1e3a8a' : '#fff',
@@ -206,7 +257,7 @@ export default function ProductsSection() {
                     ))}
                 </div>
 
-                {/* Product grid */}
+                {/* Grade de produtos */}
                 <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                     {filtered.map((product) => (
                         <ProductCard key={product.id} product={product} />
@@ -214,14 +265,31 @@ export default function ProductsSection() {
                 </div>
 
                 {filtered.length === 0 && (
-                    <div className="mt-16 flex flex-col items-center text-center gap-3">
-                        <span className="text-5xl">🔍</span>
-                        <p className="text-gray-500 text-sm">Nenhum item encontrado nessa categoria.</p>
+                    <div className="mt-16 mb-8 flex flex-col items-center justify-center p-12 rounded-3xl border border-dashed border-gray-300 bg-white/50 backdrop-blur-sm animate-in fade-in zoom-in duration-500">
+                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                            <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                            </svg>
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                            {searchQuery ? `Nenhum resultado para "${searchQuery}"` : 'Nenhum item nesta categoria'}
+                        </h3>
+                        <p className="text-gray-500 text-sm max-w-md text-center mb-8">
+                            Não encontramos o que você precisa por aqui no momento. Tente buscar um termo diferente ou limpe os filtros para ver todos os itens.
+                        </p>
+                        <button
+                            onClick={() => handleCategoryChange('Todos')}
+                            className="px-8 py-3 rounded-full text-sm font-bold text-white transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-900/20"
+                            style={{ background: '#1e3a8a' }}
+                        >
+                            Ver Todos os Produtos
+                        </button>
                     </div>
                 )}
             </div>
 
-            {/* WhatsApp floating button */}
+            {/* Botão flutuante do WhatsApp */}
             <a
                 href="https://wa.me/5511963119191"
                 target="_blank"
