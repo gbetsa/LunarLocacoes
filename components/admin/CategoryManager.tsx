@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { categorySchema } from '@/lib/validations/category';
 
 interface Category {
     id: string;
@@ -26,7 +27,13 @@ export default function CategoryManager({ isOpen, onClose, categories: initialCa
 
     const handleAdd = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newCategory.trim()) return;
+        setError('');
+
+        const result = categorySchema.safeParse({ name: newCategory });
+        if (!result.success) {
+            setError(result.error.issues[0].message);
+            return;
+        }
 
         setLoading(true);
         setError('');
@@ -38,7 +45,10 @@ export default function CategoryManager({ isOpen, onClose, categories: initialCa
                 body: JSON.stringify({ name: newCategory }),
             });
 
-            if (!res.ok) throw new Error('Falha ao criar categoria');
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || 'Falha ao criar categoria');
+            }
 
             const data = await res.json();
             setCategories([...categories, data]);
@@ -69,10 +79,10 @@ export default function CategoryManager({ isOpen, onClose, categories: initialCa
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <div className="bg-[#141414] border border-white/10 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+            <div className="bg-[#141414] border border-white/10 w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
                 <div className="p-6 border-b border-white/5 flex justify-between items-center">
                     <h2 className="text-xl font-light">Gerenciar Categorias</h2>
-                    <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors">
+                    <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors cursor-pointer">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -92,7 +102,7 @@ export default function CategoryManager({ isOpen, onClose, categories: initialCa
                         <button
                             type="submit"
                             disabled={loading}
-                            className="px-4 py-2 bg-[#D8C28A] text-black rounded-lg text-sm font-bold hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+                            className="px-4 py-2 bg-[#D8C28A] text-black rounded-lg text-sm font-bold hover:scale-105 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
                         >
                             +
                         </button>
@@ -109,7 +119,7 @@ export default function CategoryManager({ isOpen, onClose, categories: initialCa
                                 </div>
                                 <button
                                     onClick={() => handleDelete(cat.id)}
-                                    className="p-2 text-gray-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                                    className="p-2 text-gray-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
                                 >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -123,7 +133,7 @@ export default function CategoryManager({ isOpen, onClose, categories: initialCa
                 <div className="p-6 border-t border-white/5 bg-[#1a1a1a]/50">
                     <button
                         onClick={onClose}
-                        className="w-full py-2 rounded-lg text-sm text-gray-400 hover:text-white transition-colors"
+                        className="w-full py-2 rounded-lg text-sm text-gray-400 hover:text-white transition-colors cursor-pointer"
                     >
                         Fechar
                     </button>

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { categoryService } from '../services/CategoryService';
+import { categorySchema } from '../validations/category';
 
 export class CategoryController {
     async getAll() {
@@ -13,11 +14,16 @@ export class CategoryController {
 
     async create(request: Request) {
         try {
-            const { name } = await request.json();
-            if (!name) {
-                return NextResponse.json({ error: 'Nome é obrigatório' }, { status: 400 });
+            const body = await request.json();
+            const result = categorySchema.safeParse(body);
+
+            if (!result.success) {
+                return NextResponse.json({
+                    error: result.error.issues[0].message
+                }, { status: 400 });
             }
-            const category = await categoryService.createCategory(name);
+
+            const category = await categoryService.createCategory(result.data.name);
             return NextResponse.json(category, { status: 201 });
         } catch (error: any) {
             if (error.message === 'Category already exists') {
@@ -29,11 +35,16 @@ export class CategoryController {
 
     async update(request: Request, id: string) {
         try {
-            const { name } = await request.json();
-            if (!name) {
-                return NextResponse.json({ error: 'Nome é obrigatório' }, { status: 400 });
+            const body = await request.json();
+            const result = categorySchema.safeParse(body);
+
+            if (!result.success) {
+                return NextResponse.json({
+                    error: result.error.issues[0].message
+                }, { status: 400 });
             }
-            const category = await categoryService.updateCategory(id, name);
+
+            const category = await categoryService.updateCategory(id, result.data.name);
             return NextResponse.json(category);
         } catch (error) {
             return NextResponse.json({ error: 'Erro ao atualizar categoria' }, { status: 500 });

@@ -20,6 +20,7 @@ export class ProductService {
             ...rest,
             tags: tags || null,
             images: images || { set: [] },
+            specifications: data.specifications || [],
             category: categoryId ? { connect: { id: categoryId } } : undefined,
         });
     }
@@ -50,6 +51,10 @@ export class ProductService {
             updateData.category = categoryId
                 ? { connect: { id: categoryId } }
                 : { disconnect: true };
+        }
+
+        if ('specifications' in data) {
+            updateData.specifications = data.specifications || [];
         }
 
         return productRepository.update(id, updateData);

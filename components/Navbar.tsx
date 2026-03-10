@@ -4,13 +4,17 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useWhatsApp } from '@/context/WhatsAppContext';
+
+import { AdminUser } from '@/lib/controllers/AuthController';
 
 interface Category {
     id: string;
     name: string;
 }
 
-export default function Navbar({ categories }: { categories: Category[] }) {
+export default function Navbar({ categories, user }: { categories: Category[], user?: AdminUser | null }) {
+    const { getWhatsAppLink } = useWhatsApp();
     const router = useRouter();
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -44,8 +48,9 @@ export default function Navbar({ categories }: { categories: Category[] }) {
     return (
         <>
             <nav
-                className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-3 sm:gap-6 px-4 sm:px-10 py-4 transition-all duration-500"
+                className="fixed left-0 right-0 z-50 flex items-center justify-between gap-3 sm:gap-6 px-4 sm:px-10 py-4 transition-all duration-500"
                 style={{
+                    top: user ? '34px' : '0',
                     background: showBackground ? 'rgba(4, 14, 60, 0.85)' : 'transparent',
                     backdropFilter: showBackground ? 'blur(16px) saturate(100%)' : 'none',
                     WebkitBackdropFilter: showBackground ? 'blur(16px) saturate(100%)' : 'none',
@@ -54,8 +59,8 @@ export default function Navbar({ categories }: { categories: Category[] }) {
                 }}
             >
                 {/* Logotipo */}
-                <Link href="/" className="flex items-center gap-3 group shrink-0 cursor-pointer">
-                    <div className="relative w-9 h-9">
+                <Link href="/" className="flex items-center gap-2 sm:gap-3 group shrink-0 cursor-pointer">
+                    <div className="relative w-8 h-8 sm:w-9 sm:h-9">
                         <Image
                             src="/assets/lunar-logo.png"
                             alt="Lunar Locações Logo"
@@ -64,7 +69,7 @@ export default function Navbar({ categories }: { categories: Category[] }) {
                             priority
                         />
                     </div>
-                    <span className="hidden sm:block text-base font-semibold tracking-wide text-white/90 group-hover:text-white transition-colors whitespace-nowrap">
+                    <span className="hidden lg:block text-base font-semibold tracking-wide text-white/90 group-hover:text-white transition-colors whitespace-nowrap">
                         Lunar Locações
                     </span>
                 </Link>
@@ -90,8 +95,8 @@ export default function Navbar({ categories }: { categories: Category[] }) {
                             (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(255,255,255,0.18)';
                         }}
                     >
-                        <div className="flex-1 flex items-center px-4 gap-2.5">
-                            <svg className="w-4 h-4 shrink-0 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex-1 flex items-center px-2 sm:px-4 gap-2">
+                            <svg className="hidden xs:block w-4 h-4 shrink-0 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                             <input
@@ -100,12 +105,12 @@ export default function Navbar({ categories }: { categories: Category[] }) {
                                 onChange={(e) => setQuery(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                 placeholder="Buscar itens..."
-                                className="bg-transparent border-none outline-none w-full py-2.5 text-sm text-white placeholder-white/30"
+                                className="bg-transparent border-none outline-none w-full py-2 sm:py-2.5 text-sm text-white placeholder-white/30"
                             />
                         </div>
                         <button
                             onClick={handleSearch}
-                            className="shrink-0 m-1 px-4 py-2 rounded-[8px] text-xs font-semibold transition-all hover:brightness-110 active:scale-95 cursor-pointer"
+                            className="shrink-0 m-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[8px] text-xs font-semibold transition-all hover:brightness-110 active:scale-95 cursor-pointer"
                             style={{
                                 background: 'linear-gradient(135deg, #1e3a8a, #2b52c8)',
                                 color: '#fff',
@@ -154,12 +159,14 @@ export default function Navbar({ categories }: { categories: Category[] }) {
                             </div>
                         </div>
                     </div>
-                    <Link
-                        href="/contato"
+                    <a
+                        href={getWhatsAppLink()}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="relative hover:text-white transition-colors cursor-pointer"
                     >
                         Contato
-                    </Link>
+                    </a>
                 </div>
 
                 {/* Botão Menu Mobile */}
@@ -212,13 +219,15 @@ export default function Navbar({ categories }: { categories: Category[] }) {
                             >
                                 Home
                             </Link>
-                            <Link
-                                href="/contato"
+                            <a
+                                href={getWhatsAppLink()}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 onClick={() => setIsMenuOpen(false)}
                                 className="text-xl font-semibold text-white/90 py-3 border-b border-white/5"
                             >
                                 Contato
-                            </Link>
+                            </a>
 
                             {/* Categorias Accordion-style (list) */}
                             <div className="mt-4">

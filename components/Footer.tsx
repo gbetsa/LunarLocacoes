@@ -1,13 +1,15 @@
 import React from 'react';
+import { useWhatsApp } from '@/context/WhatsAppContext';
 
 export default function Footer() {
+    const { whatsappNumber, getWhatsAppLink } = useWhatsApp();
+
     return (
         <footer className="w-full text-white" style={{ background: '#001529', paddingTop: '4rem', paddingBottom: '2.5rem' }}>
             <div className="max-w-7xl mx-auto px-6 md:px-10">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-20">
-
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-20 text-center md:text-left">
                     {/* Marca e Slogan */}
-                    <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-4 items-center md:items-start">
                         <h3 className="text-lg font-bold" style={{ color: '#D8C28A' }}>Lunar Locações</h3>
                         <div className="flex flex-col gap-1.5 opacity-90 text-sm">
                             <p>Qualidade e confiança em cada locação</p>
@@ -16,23 +18,25 @@ export default function Footer() {
                     </div>
 
                     {/* Informações de Contato */}
-                    <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-4 items-center md:items-start">
                         <h3 className="text-lg font-bold" style={{ color: '#D8C28A' }}>Contato</h3>
                         <div className="flex flex-col gap-1.5 opacity-90 text-sm">
                             <p>Email: contato@lunarlocacoes.com.br</p>
-                            <a
-                                href="https://wa.me/5511963119191"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="hover:text-yellow-500 transition-colors cursor-pointer"
-                            >
-                                WhatsApp: (11) 96311-9191
-                            </a>
+                            {whatsappNumber && (
+                                <a
+                                    href={getWhatsAppLink()}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="hover:text-yellow-500 transition-colors cursor-pointer"
+                                >
+                                    WhatsApp: {whatsappNumber}
+                                </a>
+                            )}
                         </div>
                     </div>
 
                     {/* Horários */}
-                    <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-4 items-center md:items-start">
                         <h3 className="text-lg font-bold" style={{ color: '#D8C28A' }}>Horário de Atendimento</h3>
                         <div className="flex flex-col gap-1.5 opacity-90 text-sm">
                             <p>Segunda a Sexta: 9h às 18h</p>
@@ -40,7 +44,6 @@ export default function Footer() {
                             <p>Domingo: Fechado</p>
                         </div>
                     </div>
-
                 </div>
 
                 {/* Rodapé inferior */}

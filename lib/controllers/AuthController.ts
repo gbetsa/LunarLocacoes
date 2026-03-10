@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import { authService } from '../services/AuthService';
 
+export interface AdminUser {
+    userId: string;
+    email: string;
+    name?: string;
+}
+
 export class AuthController {
     async login(request: Request) {
         try {
