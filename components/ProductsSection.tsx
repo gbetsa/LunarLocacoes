@@ -2,31 +2,221 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 // ── Tipos ──────────────────────────────────────────────────────────────────
-interface Product {
+export interface Product {
     id: number;
     name: string;
     available: boolean;
     rentalPeriod: string;
     categories: string[];
     whatsapp: string;
+    description?: string;
+    images?: string[];
+    specs?: { label: string; value: string }[];
+    minQuantity?: number;
+    tags?: string[];
 }
 
 // ── Dados de Exemplo ──────────────────────────────────────────────────────
-const ALL_PRODUCTS: Product[] = [
-    { id: 1, name: 'Cadeira Dobrável Reforçada', available: true, rentalPeriod: '5 dias', categories: ['Mobiliário', 'Festas'], whatsapp: '' },
-    { id: 2, name: 'Luminária LED Industrial 100W', available: false, rentalPeriod: '1 dia', categories: ['Iluminação', 'Eventos'], whatsapp: '' },
-    { id: 3, name: 'Mesa Dobrável Plástico 1,80m', available: true, rentalPeriod: '5 dias', categories: ['Mobiliário', 'Festas'], whatsapp: '' },
-    { id: 4, name: 'Kit de Ferramentas 110 Peças', available: true, rentalPeriod: '1 dia', categories: ['Ferramentas', 'Manutenção'], whatsapp: '' },
-    { id: 5, name: 'Caixa de Som Bluetooth Profissional', available: true, rentalPeriod: '1 dia', categories: ['Tecnologia', 'Eventos'], whatsapp: '' },
-    { id: 6, name: 'Freezer Vertical 300L', available: true, rentalPeriod: '1 mês', categories: ['Eletrodomésticos', 'Cozinha'], whatsapp: '' },
-    { id: 7, name: 'Lavadora de Alta Pressão 1800W', available: true, rentalPeriod: '15 dias', categories: ['Equipamentos', 'Limpeza'], whatsapp: '' },
-    { id: 8, name: 'Micro-ondas 30 Litros', available: true, rentalPeriod: '15 dias', categories: ['Eletrodomésticos', 'Cozinha'], whatsapp: '' },
-    { id: 9, name: 'Tenda 3x3 Reforçada', available: true, rentalPeriod: '1 dia', categories: ['Estruturas', 'Eventos'], whatsapp: '' },
-    { id: 10, name: 'Cafeteira Elétrica 1,5L', available: true, rentalPeriod: '1 dia', categories: ['Eletrodomésticos', 'Cozinha'], whatsapp: '' },
-    { id: 11, name: 'Ventilador Industrial 70cm', available: true, rentalPeriod: '1 dia', categories: ['Equipamentos', 'Climatização'], whatsapp: '' },
-    { id: 12, name: 'Forno Elétrico 45L', available: true, rentalPeriod: '1 dia', categories: ['Eletrodomésticos', 'Cozinha'], whatsapp: '' },
+export const ALL_PRODUCTS: Product[] = [
+    {
+        id: 1,
+        name: 'Cadeira Dobrável Reforçada',
+        available: true,
+        rentalPeriod: '5 dias',
+        categories: ['Mobiliário', 'Festas'],
+        whatsapp: '',
+        description: 'Cadeira dobrável com estrutura reforçada em aço carbono e assento anatômico. Ideal para locações residenciais, comerciais ou corporativas. Fácil de transportar, leve e resistente.',
+        images: ['/assets/products/chair-1.jpg'],
+        specs: [
+            { label: 'Material', value: 'Aço carbono pintado' },
+            { label: 'Peso suportado', value: '110kg' },
+            { label: 'Peso da cadeira', value: '3kg' },
+            { label: 'Dobrável', value: 'Sim' },
+        ],
+        minQuantity: 20,
+        tags: ['Mobiliário', 'Prático', 'Reforçado']
+    },
+    {
+        id: 2,
+        name: 'Luminária LED Industrial 100W',
+        available: false,
+        rentalPeriod: '1 dia',
+        categories: ['Iluminação', 'Eventos'],
+        whatsapp: '',
+        description: 'Refletor LED de alta potência para iluminação de grandes áreas, galpões e eventos externos. Resistente a intempéries e com baixo consumo de energia.',
+        specs: [
+            { label: 'Potência', value: '100W' },
+            { label: 'Luminosidade', value: '10.000 Lumens' },
+            { label: 'Proteção', value: 'IP66 (À prova d\'água)' },
+            { label: 'Voltagem', value: 'Bivolt' },
+        ],
+        minQuantity: 5,
+        tags: ['Iluminação', 'Led', 'Industrial']
+    },
+    {
+        id: 3,
+        name: 'Mesa Dobrável Plástico 1,80m',
+        available: true,
+        rentalPeriod: '5 dias',
+        categories: ['Mobiliário', 'Festas'],
+        whatsapp: '',
+        description: 'Mesa retangular em polietileno de alta densidade com pés em aço. Perfeita para buffets, reuniões e eventos sociais. Fácil de limpar e armazenar.',
+        specs: [
+            { label: 'Dimensões', value: '180cm x 75cm' },
+            { label: 'Material Tampo', value: 'Polietileno de Alta Densidade' },
+            { label: 'Capacidade', value: '6 a 8 pessoas' },
+            { label: 'Peso suportado', value: '150kg' },
+        ],
+        minQuantity: 5,
+        tags: ['Mobiliário', 'Buffet', 'Prático']
+    },
+    {
+        id: 4,
+        name: 'Kit de Ferramentas 110 Peças',
+        available: true,
+        rentalPeriod: '1 dia',
+        categories: ['Ferramentas', 'Manutenção'],
+        whatsapp: '',
+        description: 'Jogo completo de ferramentas manuais em aço cromo vanádio. Inclui chaves, soquetes e bits para diversos tipos de manutenção e montagem.',
+        specs: [
+            { label: 'Peças', value: '110 itens' },
+            { label: 'Material', value: 'Aço Cromo Vanádio' },
+            { label: 'Maleta', value: 'Inclusa (Plástico Rígido)' },
+        ],
+        minQuantity: 1,
+        tags: ['Ferramentas', 'Manutenção', 'Profissional']
+    },
+    {
+        id: 5,
+        name: 'Caixa de Som Bluetooth Profissional',
+        available: true,
+        rentalPeriod: '1 dia',
+        categories: ['Tecnologia', 'Eventos'],
+        whatsapp: '',
+        description: 'Sistema de som ativo com conexão Bluetooth, USB e entrada para microfone. Som potente e cristalino para pequenas e médias reuniões.',
+        specs: [
+            { label: 'Potência RMS', value: '250W' },
+            { label: 'Conexão', value: 'Bluetooth / USB / XLR' },
+            { label: 'Bateria', value: 'Até 6h de duração' },
+        ],
+        minQuantity: 1,
+        tags: ['Som', 'Tecnologia', 'Eventos']
+    },
+    {
+        id: 6,
+        name: 'Freezer Vertical 300L',
+        available: true,
+        rentalPeriod: '1 mês',
+        categories: ['Eletrodomésticos', 'Cozinha'],
+        whatsapp: '',
+        description: 'Freezer vertical ideal para armazenamento de bebidas e alimentos congelados em eventos ou uso comercial temporário.',
+        specs: [
+            { label: 'Capacidade', value: '300 Litros' },
+            { label: 'Consumo', value: 'Selo Procel A' },
+            { label: 'Temperatura', value: '-18°C a -22°C' },
+        ],
+        minQuantity: 1,
+        tags: ['Cozinha', 'Refrigeração', 'Eletrodomésticos']
+    },
+    {
+        id: 7,
+        name: 'Lavadora de Alta Pressão 1800W',
+        available: true,
+        rentalPeriod: '15 dias',
+        categories: ['Equipamentos', 'Limpeza'],
+        whatsapp: '',
+        description: 'Equipamento de limpeza profissional com alta pressão de água, ideal para lavagem de pátios, fachadas e veículos.',
+        specs: [
+            { label: 'Pressão Máxima', value: '2000 PSI' },
+            { label: 'Potência', value: '1800W' },
+            { label: 'Vazão', value: '360 L/h' },
+        ],
+        minQuantity: 1,
+        tags: ['Limpeza', 'Equipamentos', 'Profissional']
+    },
+    {
+        id: 8,
+        name: 'Micro-ondas 30 Litros',
+        available: true,
+        rentalPeriod: '15 dias',
+        categories: ['Eletrodomésticos', 'Cozinha'],
+        whatsapp: '',
+        description: 'Forno micro-ondas de 30 litros para aquecimento rápido de refeições em copas corporativas ou eventos.',
+        specs: [
+            { label: 'Capacidade', value: '30 Litros' },
+            { label: 'Funções', value: 'Descongelar, Grill, Pipoca' },
+            { label: 'Voltagem', value: '110V ou 220V' },
+        ],
+        minQuantity: 1,
+        tags: ['Cozinha', 'Praticidade', 'Eletrodomésticos']
+    },
+    {
+        id: 9,
+        name: 'Tenda 3x3 Reforçada',
+        available: true,
+        rentalPeriod: '1 dia',
+        categories: ['Estruturas', 'Eventos'],
+        whatsapp: '',
+        description: 'Tenda dobrável pantográfica com estrutura em aço galvanizado e lona com proteção UV. Montagem rápida sem ferramentas.',
+        specs: [
+            { label: 'Área', value: '9m² (3m x 3m)' },
+            { label: 'Altura Central', value: '2.50m' },
+            { label: 'Lona', value: 'Poliéster Impermeável' },
+        ],
+        minQuantity: 1,
+        tags: ['Estruturas', 'Eventos', 'Sol']
+    },
+    {
+        id: 10,
+        name: 'Cafeteira Elétrica 1,5L',
+        available: true,
+        rentalPeriod: '1 dia',
+        categories: ['Eletrodomésticos', 'Cozinha'],
+        whatsapp: '',
+        description: 'Cafeteira elétrica de grande capacidade, ideal para reuniões e coffee breaks. Mantém o café aquecido por mais tempo.',
+        specs: [
+            { label: 'Capacidade', value: '1,5 Litros (38 xícaras)' },
+            { label: 'Base Aquecida', value: 'Sim' },
+            { label: 'Filtro Permanente', value: 'Sim' },
+        ],
+        minQuantity: 1,
+        tags: ['Cozinha', 'Coffee Break', 'Eletrodomésticos']
+    },
+    {
+        id: 11,
+        name: 'Ventilador Industrial 70cm',
+        available: true,
+        rentalPeriod: '1 dia',
+        categories: ['Equipamentos', 'Climatização'],
+        whatsapp: '',
+        description: 'Ventilador de alta potência para ventilação de grandes ambientes, galpões e ginásios.',
+        specs: [
+            { label: 'Diâmetro', value: '70cm' },
+            { label: 'Potência', value: '230W' },
+            { label: 'Alcance', value: 'Até 25m' },
+        ],
+        minQuantity: 2,
+        tags: ['Climatização', 'Equipamentos', 'Industrial']
+    },
+    {
+        id: 12,
+        name: 'Forno Elétrico 45L',
+        available: true,
+        rentalPeriod: '1 dia',
+        categories: ['Eletrodomésticos', 'Cozinha'],
+        whatsapp: '',
+        description: 'Forno elétrico com controle de temperatura e timer, ideal para assar e aquecer alimentos em eventos.',
+        specs: [
+            { label: 'Capacidade', value: '45 Litros' },
+            { label: 'Temperatura', value: 'Até 250°C' },
+            { label: 'Função Timer', value: 'Sim (60 min)' },
+        ],
+        minQuantity: 1,
+        tags: ['Cozinha', 'Eletrodomésticos', 'Praticidade']
+    },
 ];
 
 const CATEGORY_ROWS = [
@@ -125,12 +315,13 @@ function ProductCard({ product }: { product: Product }) {
 
                 {/* Botões de Ação */}
                 <div className="flex gap-2 mt-auto pt-1">
-                    <button
-                        className="flex-1 py-2.5 rounded-lg text-xs font-bold text-white text-center transition-all hover:brightness-110 active:scale-95"
+                    <Link
+                        href={`/produto/${product.id}`}
+                        className="flex-1 py-2.5 rounded-lg text-xs font-bold text-white text-center transition-all hover:brightness-110 active:scale-95 flex items-center justify-center"
                         style={{ background: '#1e3a8a' }}
                     >
                         VER DETALHES
-                    </button>
+                    </Link>
                     <a
                         href={waLink}
                         target="_blank"

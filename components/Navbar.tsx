@@ -47,7 +47,7 @@ export default function Navbar() {
             </Link>
 
             {/* Barra de busca */}
-            <div className="w-full max-w-md mx-auto">
+            <div className="w-full max-w-[200px] lg:max-w-md mx-auto px-4">
                 <div
                     className="flex items-center overflow-hidden"
                     style={{
@@ -95,7 +95,7 @@ export default function Navbar() {
             </div>
 
             {/* Links de navegação */}
-            <div className="hidden md:flex items-center gap-7 text-sm font-medium text-white/75 shrink-0">
+            <div className="hidden md:flex items-center gap-4 lg:gap-7 text-sm font-medium text-white/75 shrink-0">
                 <Link
                     href="/"
                     className="relative hover:text-white transition-colors after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-px after:bg-[#D8C28A] after:transition-all hover:after:w-full"
