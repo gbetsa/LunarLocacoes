@@ -3,9 +3,11 @@ import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 import { userRepository } from '../repositories/UserRepository';
 
-const JWT_SECRET = new TextEncoder().encode(
-    process.env.JWT_SECRET || 'lunar-locacoes-secret-key-12345'
-);
+if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET não configurado nas variáveis de ambiente');
+}
+
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export class AuthService {
     async hashPassword(password: string) {
