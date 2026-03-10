@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id             String    @id @default(uuid())
+  name           String
+  description    String
+  images         String[]
+  available      Boolean   @default(true)
+  rentalPeriod   String
+  categoryId     String?
+  category       Category? @relation(fields: [categoryId], references: [id])
+  specifications Json?
+  minQuantity    Int       @default(1)
+  tags           String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([categoryId])
+}
+
+model Settings {
+  id        String   @id @default(cuid())
+  whatsapp  String?
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
