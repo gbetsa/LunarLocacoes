@@ -24,7 +24,7 @@ export default function Footer() {
                                 href="https://wa.me/5511963119191"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="hover:text-yellow-500 transition-colors"
+                                className="hover:text-yellow-500 transition-colors cursor-pointer"
                             >
                                 WhatsApp: (11) 96311-9191
                             </a>

@@ -219,9 +219,9 @@ export const ALL_PRODUCTS: Product[] = [
     },
 ];
 
-const CATEGORY_ROWS = [
-    ['Todos', 'Mobiliário', 'Iluminação', 'Decoração', 'Tecnologia', 'Ferramentas', 'Equipamentos'],
-    ['Eletrodomésticos', 'Veículos', 'Estruturas'],
+const CATEGORIES = [
+    'Todos', 'Mobiliário', 'Iluminação', 'Decoração', 'Tecnologia',
+    'Ferramentas', 'Equipamentos', 'Eletrodomésticos', 'Veículos', 'Estruturas'
 ];
 
 // ── Ícones das Categorias (SVG) ───────────────────────────────────────────
@@ -317,7 +317,7 @@ function ProductCard({ product }: { product: Product }) {
                 <div className="flex gap-2 mt-auto pt-1">
                     <Link
                         href={`/produto/${product.id}`}
-                        className="flex-1 py-2.5 rounded-lg text-xs font-bold text-white text-center transition-all hover:brightness-110 active:scale-95 flex items-center justify-center"
+                        className="flex-1 py-2.5 rounded-lg text-xs font-bold text-white text-center transition-all hover:brightness-110 active:scale-95 flex items-center justify-center cursor-pointer"
                         style={{ background: '#1e3a8a' }}
                     >
                         VER DETALHES
@@ -326,7 +326,7 @@ function ProductCard({ product }: { product: Product }) {
                         href={waLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 py-2.5 rounded-lg text-xs font-bold text-white text-center flex items-center justify-center gap-1.5 transition-all hover:brightness-110 active:scale-95"
+                        className="flex-1 py-2.5 rounded-lg text-xs font-bold text-white text-center flex items-center justify-center gap-1.5 transition-all hover:brightness-110 active:scale-95 cursor-pointer"
                         style={{ background: '#25d366' }}
                     >
                         <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
@@ -358,12 +358,22 @@ export default function ProductsSection() {
         setActiveCategory(cat);
         setSearchQuery(search);
 
-        // Apenas rola se o usuário estiver na parte de cima ou de baixo, longe da seção
+        // Apenas rola se o usuário estiver fora da seção
         const rect = sectionRef.current?.getBoundingClientRect();
-        const isOutsideSection = rect && (rect.top > 100 || rect.bottom < 0);
+        const isOutsideSection = rect && (rect.top > 120 || rect.bottom < 0);
 
         if ((searchParams.get('category') || searchParams.get('search')) && isOutsideSection) {
-            sectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+            const element = sectionRef.current;
+            if (element) {
+                const offset = 100; // Altura do header fixo
+                const elementPosition = element.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
         }
     }, [searchParams]);
 
@@ -399,85 +409,101 @@ export default function ProductsSection() {
         return matchesCategory && matchesSearch;
     });
 
+    const getCategoryCount = (cat: string) => {
+        if (cat === 'Todos') return ALL_PRODUCTS.length;
+        return ALL_PRODUCTS.filter(p => p.categories.includes(cat)).length;
+    };
+
     return (
-        <section id="produtos" ref={sectionRef} className="relative" style={{ background: '#f4f6fb', paddingTop: '5rem', paddingBottom: '4rem' }}>
+        <section id="produtos" ref={sectionRef} className="relative" style={{ background: '#f4f6fb', paddingTop: '5rem', paddingBottom: '4rem', minHeight: '600px' }}>
             <div className="max-w-7xl mx-auto px-6 md:px-10">
 
                 {/* Linha de cabeçalho */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                     <div>
-                        <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900">
-                            {searchQuery ? `Resultados para "${searchQuery}"` : 'Itens Disponíveis para Locação'}
-                        </h2>
-                        <p className="text-sm text-gray-500 mt-1">
-                            {searchQuery ? `Encontramos ${filtered.length} itens correspondentes.` : 'Locações rápidas, confiáveis e com valores acessíveis.'}
+                        <div className="flex items-center gap-3">
+                            <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900">
+                                {searchQuery ? `Resultados para "${searchQuery}"` : 'Explorar de Equipamentos'}
+                            </h2>
+                            <span className="bg-[#1e3a8a]/10 text-[#1e3a8a] text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                {filtered.length} {filtered.length === 1 ? 'item' : 'itens'}
+                            </span>
+                        </div>
+                        <p className="text-sm text-gray-500 mt-2">
+                            {searchQuery ? `Encontramos ${filtered.length} itens correspondentes.` : 'Escolha a categoria e encontre o material ideal para sua necessidade.'}
                         </p>
                     </div>
-                    <span
-                        className="shrink-0 text-xs font-bold text-white px-4 py-2 rounded-full w-fit"
-                        style={{ background: '#1e3a8a', whiteSpace: 'nowrap' }}
-                    >
-                        {filtered.length} {filtered.length === 1 ? 'item encontrado' : 'itens encontrados'}
-                    </span>
                 </div>
 
-                {/* Filtros de categoria */}
-                <div className="mt-5 flex flex-col gap-2">
-                    {CATEGORY_ROWS.map((row, ri) => (
-                        <div key={ri} className="flex flex-wrap gap-2">
-                            {row.map((cat) => {
+                <div className="lg:grid lg:grid-cols-12 lg:gap-10">
+
+                    {/* Filtros: Sidebar (Desktop) / Scroll (Mobile) */}
+                    <aside className="lg:col-span-3">
+                        <div className="flex lg:flex-col gap-2.5 overflow-x-auto lg:overflow-y-auto no-scrollbar pb-4 lg:pb-0 lg:sticky lg:top-32 lg:max-h-[calc(100vh-160px)] lg:pr-2">
+                            <h4 className="hidden lg:block text-[10px] font-bold text-[#D8C28A] uppercase tracking-[0.2em] mb-3 ml-1">
+                                Categorias
+                            </h4>
+                            {CATEGORIES.map((cat) => {
                                 const isActive = activeCategory === cat;
+                                const count = getCategoryCount(cat);
                                 return (
                                     <button
                                         key={cat}
                                         onClick={() => handleCategoryChange(cat)}
-                                        className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all"
+                                        className="flex items-center justify-between gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer whitespace-nowrap lg:w-full group"
                                         style={{
                                             background: isActive ? '#1e3a8a' : '#fff',
-                                            color: isActive ? '#fff' : '#374151',
-                                            border: `1.5px solid ${isActive ? '#1e3a8a' : '#d1d5db'}`,
-                                            boxShadow: isActive ? '0 4px 14px rgba(30,58,138,0.3)' : 'none',
+                                            color: isActive ? '#fff' : '#4b5563',
+                                            border: `1.5px solid ${isActive ? '#1e3a8a' : '#e5e7eb'}`,
+                                            boxShadow: isActive ? '0 8px 16px rgba(30,58,138,0.2)' : '0 2px 4px rgba(0,0,0,0.02)',
                                         }}
                                     >
-                                        <CategoryIcon name={cat} />
-                                        {cat}
+                                        <div className="flex items-center gap-2.5">
+                                            <CategoryIcon name={cat} className={`w-4.5 h-4.5 transition-colors ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-[#1e3a8a]'}`} />
+                                            <span>{cat}</span>
+                                        </div>
+                                        <span className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                                            {count}
+                                        </span>
                                     </button>
                                 );
                             })}
                         </div>
-                    ))}
-                </div>
+                    </aside>
 
-                {/* Grade de produtos */}
-                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                    {filtered.map((product) => (
-                        <ProductCard key={product.id} product={product} />
-                    ))}
+                    {/* Grade de produtos */}
+                    <main className="lg:col-span-9 mt-4 lg:mt-0">
+                        {filtered.length > 0 ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                                {filtered.map((product) => (
+                                    <ProductCard key={product.id} product={product} />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center p-12 rounded-3xl border border-dashed border-gray-300 bg-white/50 backdrop-blur-sm animate-in fade-in zoom-in duration-500">
+                                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                                    <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                    {searchQuery ? `Nenhum resultado para "${searchQuery}"` : 'Nenhum item nesta categoria'}
+                                </h3>
+                                <p className="text-gray-500 text-sm max-w-md text-center mb-8">
+                                    Não encontramos o que você precisa por aqui no momento. Tente buscar por outro termo.
+                                </p>
+                                <button
+                                    onClick={() => handleCategoryChange('Todos')}
+                                    className="px-8 py-3 rounded-full text-sm font-bold text-white transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-900/20 cursor-pointer"
+                                    style={{ background: '#1e3a8a' }}
+                                >
+                                    Ver Todos os Produtos
+                                </button>
+                            </div>
+                        )}
+                    </main>
                 </div>
-
-                {filtered.length === 0 && (
-                    <div className="mt-16 mb-8 flex flex-col items-center justify-center p-12 rounded-3xl border border-dashed border-gray-300 bg-white/50 backdrop-blur-sm animate-in fade-in zoom-in duration-500">
-                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6 shadow-inner">
-                            <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
-                            </svg>
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">
-                            {searchQuery ? `Nenhum resultado para "${searchQuery}"` : 'Nenhum item nesta categoria'}
-                        </h3>
-                        <p className="text-gray-500 text-sm max-w-md text-center mb-8">
-                            Não encontramos o que você precisa por aqui no momento. Tente buscar um termo diferente ou limpe os filtros para ver todos os itens.
-                        </p>
-                        <button
-                            onClick={() => handleCategoryChange('Todos')}
-                            className="px-8 py-3 rounded-full text-sm font-bold text-white transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-900/20"
-                            style={{ background: '#1e3a8a' }}
-                        >
-                            Ver Todos os Produtos
-                        </button>
-                    </div>
-                )}
             </div>
 
             {/* Botão flutuante do WhatsApp */}
@@ -485,7 +511,7 @@ export default function ProductsSection() {
                 href="https://wa.me/5511963119191"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all hover:scale-110 active:scale-95"
+                className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all hover:scale-110 active:scale-95 cursor-pointer"
                 style={{ background: '#25d366', boxShadow: '0 8px 24px rgba(37,211,102,0.45)' }}
                 title="Falar pelo WhatsApp"
             >

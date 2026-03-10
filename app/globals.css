@@ -47,3 +47,13 @@ body {
 .bg-gold {
   background-color: var(--primary);
 }
+
+/* Utilitários de Scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
