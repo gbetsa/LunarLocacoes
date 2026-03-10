@@ -38,7 +38,7 @@ export default function CustomSelect({ value, onChange, options, placeholder = '
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-gray-300 hover:border-white/20 focus:outline-none focus:border-[#D8C28A]/50 transition-all"
+                className="w-full flex items-center justify-between bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-gray-300 hover:border-white/20 focus:outline-none focus:border-[#D8C28A]/50 transition-all cursor-pointer"
             >
                 <span className="truncate pr-4">{selectedOption ? selectedOption.label : placeholder}</span>
                 <svg
@@ -62,9 +62,9 @@ export default function CustomSelect({ value, onChange, options, placeholder = '
                                         onChange(option.value);
                                         setIsOpen(false);
                                     }}
-                                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${value === option.value
-                                            ? 'bg-[#D8C28A]/10 text-[#D8C28A] font-medium'
-                                            : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors cursor-pointer ${value === option.value
+                                        ? 'bg-[#D8C28A]/10 text-[#D8C28A] font-medium'
+                                        : 'text-gray-300 hover:bg-white/5 hover:text-white'
                                         }`}
                                 >
                                     {option.label}

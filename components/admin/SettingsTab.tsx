@@ -115,7 +115,7 @@ export default function SettingsTab() {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="w-full py-3 bg-[#D8C28A] text-black font-bold rounded-xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-2"
+                            className="w-full py-3 bg-[#D8C28A] text-black font-bold rounded-xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-2 cursor-pointer"
                         >
                             {saving ? (
                                 <>

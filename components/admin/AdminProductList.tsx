@@ -126,13 +126,13 @@ export default function AdminProductList({ initialProducts, categories }: AdminP
                     <div className="flex gap-2 w-full sm:w-auto">
                         <button
                             onClick={() => setIsCatModalOpen(true)}
-                            className="flex-1 sm:flex-none px-6 py-2 bg-white/5 text-white border border-white/10 rounded-lg text-sm font-medium hover:bg-white/10 transition-all"
+                            className="flex-1 sm:flex-none px-6 py-2 bg-white/5 text-white border border-white/10 rounded-lg text-sm font-medium hover:bg-white/10 transition-all cursor-pointer"
                         >
                             Categorias
                         </button>
                         <button
                             onClick={() => handleOpenModal()}
-                            className="flex-1 sm:flex-none px-6 py-2 bg-[#D8C28A] text-black rounded-lg text-sm font-semibold hover:scale-[1.02] active:scale-95 transition-all"
+                            className="flex-1 sm:flex-none px-6 py-2 bg-[#D8C28A] text-black rounded-lg text-sm font-semibold hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
                         >
                             + Novo Produto
                         </button>
@@ -248,7 +248,7 @@ export default function AdminProductList({ initialProducts, categories }: AdminP
                                 <td className="px-6 py-4 text-right">
                                     <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
-                                            className="p-2 hover:text-[#D8C28A] transition-colors"
+                                            className="p-2 hover:text-[#D8C28A] transition-colors cursor-pointer"
                                             onClick={() => handleOpenModal(product)}
                                             title="Editar"
                                         >
@@ -257,7 +257,7 @@ export default function AdminProductList({ initialProducts, categories }: AdminP
                                             </svg>
                                         </button>
                                         <button
-                                            className="p-2 hover:text-red-500 transition-colors"
+                                            className="p-2 hover:text-red-500 transition-colors cursor-pointer"
                                             onClick={() => confirmDelete(product)}
                                             title="Excluir"
                                         >
@@ -317,14 +317,14 @@ export default function AdminProductList({ initialProducts, categories }: AdminP
                             <button
                                 onClick={() => setDeleteTarget(null)}
                                 disabled={deleting}
-                                className="flex-1 py-2 rounded-lg text-sm text-gray-400 border border-white/10 hover:bg-white/5 transition-colors"
+                                className="flex-1 py-2 rounded-lg text-sm text-gray-400 border border-white/10 hover:bg-white/5 transition-colors cursor-pointer"
                             >
                                 Cancelar
                             </button>
                             <button
                                 onClick={handleDelete}
                                 disabled={deleting}
-                                className="flex-1 py-2 rounded-lg text-sm font-semibold bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-colors disabled:opacity-50"
+                                className="flex-1 py-2 rounded-lg text-sm font-semibold bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-colors disabled:opacity-50 cursor-pointer"
                             >
                                 {deleting ? 'Excluindo...' : 'Sim, excluir'}
                             </button>

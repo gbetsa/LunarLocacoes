@@ -231,7 +231,7 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                     <h2 className="text-xl font-light">
                         {product ? 'Editar Produto' : 'Novo Produto'}
                     </h2>
-                    <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors">
+                    <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors cursor-pointer">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -285,7 +285,7 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                                             <button
                                                 type="button"
                                                 onClick={() => removeExistingImage(index)}
-                                                className="bg-red-500 p-2 rounded-full text-white hover:scale-110 transition-transform"
+                                                className="bg-red-500 p-2 rounded-full text-white hover:scale-110 transition-transform cursor-pointer"
                                                 title="Remover foto"
                                             >
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -304,7 +304,7 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                                             <button
                                                 type="button"
                                                 onClick={() => removeNewImage(index)}
-                                                className="bg-red-500 p-2 rounded-full text-white hover:scale-110 transition-transform"
+                                                className="bg-red-500 p-2 rounded-full text-white hover:scale-110 transition-transform cursor-pointer"
                                                 title="Remover nova foto"
                                             >
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -398,7 +398,7 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                                 <button
                                     type="button"
                                     onClick={addTag}
-                                    className="px-4 py-2 bg-white/10 rounded-lg text-white text-sm hover:bg-white/20 transition shrink-0"
+                                    className="px-4 py-2 bg-white/10 rounded-lg text-white text-sm hover:bg-white/20 transition shrink-0 cursor-pointer"
                                 >
                                     +
                                 </button>
@@ -411,7 +411,7 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                                             className="flex items-center gap-1 px-2 py-0.5 bg-[#D8C28A]/10 border border-[#D8C28A]/30 text-[#D8C28A] rounded-full text-xs"
                                         >
                                             {tag}
-                                            <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-400 transition-colors">
+                                            <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-400 transition-colors cursor-pointer">
                                                 ×
                                             </button>
                                         </span>
@@ -442,7 +442,7 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                                 <button
                                     type="button"
                                     onClick={addSpecification}
-                                    className="px-4 py-2 bg-[#D8C28A]/10 border border-[#D8C28A]/30 text-[#D8C28A] rounded-lg text-sm hover:bg-[#D8C28A]/20 transition"
+                                    className="px-4 py-2 bg-[#D8C28A]/10 border border-[#D8C28A]/30 text-[#D8C28A] rounded-lg text-sm hover:bg-[#D8C28A]/20 transition cursor-pointer"
                                 >
                                     Add
                                 </button>
@@ -459,7 +459,7 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                                             <button
                                                 type="button"
                                                 onClick={() => removeSpecification(index)}
-                                                className="text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                                                className="text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
                                             >
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -476,7 +476,7 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-6 py-2 rounded-lg text-sm text-gray-400 hover:text-white transition-colors"
+                            className="px-6 py-2 rounded-lg text-sm text-gray-400 hover:text-white transition-colors cursor-pointer"
                         >
                             Cancelar
                         </button>
@@ -485,7 +485,7 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                             disabled={submitting || uploading}
                             className={`px-8 py-2 rounded-lg text-sm font-semibold transition-all ${submitting || uploading
                                 ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
-                                : 'bg-[#D8C28A] text-black hover:scale-[1.05] active:scale-95'
+                                : 'bg-[#D8C28A] text-black hover:scale-[1.05] active:scale-95 cursor-pointer'
                                 }`}
                         >
                             {submitting ? 'Salvando...' : product ? 'Salvar Alterações' : 'Criar Produto'}

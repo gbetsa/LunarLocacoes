@@ -19,7 +19,7 @@ export default function AdminToolbar({ user }: { user: AdminUser | null }) {
             <div className="flex items-center gap-3">
                 <Link
                     href="/admin"
-                    className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-black/5 hover:bg-black/10 active:scale-95 transition-all border border-black/5 hover:border-black/10 group"
+                    className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-black/5 hover:bg-black/10 active:scale-95 transition-all border border-black/5 hover:border-black/10 group cursor-pointer"
                 >
                     <svg className="w-3 h-3 transition-transform group-hover:-translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h7" />

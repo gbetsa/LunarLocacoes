@@ -46,7 +46,7 @@ export default function AdminDashboardContent({ products, categories, user }: Ad
                     <div className="flex gap-3">
                         <Link
                             href="/"
-                            className="flex items-center gap-2 px-5 py-2 rounded-xl border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all text-sm font-medium group"
+                            className="flex items-center gap-2 px-5 py-2 rounded-xl border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all text-sm font-medium group cursor-pointer"
                         >
                             <svg className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -71,7 +71,7 @@ export default function AdminDashboardContent({ products, categories, user }: Ad
                 <div className="flex gap-2 p-1.5 bg-white/[0.03] border border-white/5 rounded-2xl w-fit mb-10 backdrop-blur-sm">
                     <button
                         onClick={() => setActiveTab('products')}
-                        className={`flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-bold tracking-wide uppercase transition-all duration-300 ${activeTab === 'products'
+                        className={`flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-bold tracking-wide uppercase transition-all duration-300 cursor-pointer ${activeTab === 'products'
                             ? 'bg-[#D8C28A] text-black shadow-[0_0_20px_rgba(216,194,138,0.2)]'
                             : 'text-gray-500 hover:text-white hover:bg-white/5'
                             }`}
@@ -83,7 +83,7 @@ export default function AdminDashboardContent({ products, categories, user }: Ad
                     </button>
                     <button
                         onClick={() => setActiveTab('settings')}
-                        className={`flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-bold tracking-wide uppercase transition-all duration-300 ${activeTab === 'settings'
+                        className={`flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-bold tracking-wide uppercase transition-all duration-300 cursor-pointer ${activeTab === 'settings'
                             ? 'bg-[#D8C28A] text-black shadow-[0_0_20px_rgba(216,194,138,0.2)]'
                             : 'text-gray-500 hover:text-white hover:bg-white/5'
                             }`}
