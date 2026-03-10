@@ -5,6 +5,10 @@ export class CategoryService {
         return categoryRepository.findAll();
     }
 
+    async getCategoriesWithProducts() {
+        return categoryRepository.findWithProducts();
+    }
+
     async getCategoryById(id: string) {
         return categoryRepository.findById(id);
     }

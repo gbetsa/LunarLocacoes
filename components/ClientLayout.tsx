@@ -2,11 +2,14 @@
 
 import { usePathname } from 'next/navigation';
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default function ClientLayout({
     children,
+    categories,
 }: {
     children: React.ReactNode;
+    categories: any[];
 }) {
     const pathname = usePathname();
 
@@ -15,8 +18,9 @@ export default function ClientLayout({
 
     return (
         <>
-            {!hideNavbar && <Navbar />}
+            {!hideNavbar && <Navbar categories={categories} />}
             {children}
+            {!hideNavbar && <Footer />}
         </>
     );
 }

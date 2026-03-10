@@ -2,20 +2,29 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 
-export default function Navbar() {
+interface Category {
+    id: string;
+    name: string;
+}
+
+export default function Navbar({ categories }: { categories: Category[] }) {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const pathname = usePathname();
     const [query, setQuery] = useState(searchParams.get('search') || '');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
 
-    const categories = [
-        'Mobiliário', 'Iluminação', 'Decoração', 'Tecnologia',
-        'Ferramentas', 'Equipamentos', 'Eletrodomésticos',
-        'Veículos', 'Estruturas'
-    ];
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 20);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const handleSearch = () => {
         const params = new URLSearchParams(searchParams.toString());
@@ -29,13 +38,19 @@ export default function Navbar() {
         setIsMenuOpen(false);
     };
 
+    const isHome = pathname === '/';
+    const showBackground = !isHome || isScrolled;
+
     return (
         <>
             <nav
-                className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-3 sm:gap-6 px-4 sm:px-10 py-4"
+                className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-3 sm:gap-6 px-4 sm:px-10 py-4 transition-all duration-500"
                 style={{
-                    background: 'linear-gradient(to bottom, rgba(4, 14, 60, 0.88), transparent)',
-                    backdropFilter: 'blur(8px)',
+                    background: showBackground ? 'rgba(4, 14, 60, 0.85)' : 'transparent',
+                    backdropFilter: showBackground ? 'blur(16px) saturate(100%)' : 'none',
+                    WebkitBackdropFilter: showBackground ? 'blur(16px) saturate(100%)' : 'none',
+                    borderBottom: showBackground ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid transparent',
+                    boxShadow: showBackground ? '0 4px 30px rgba(0, 0, 0, 0.1)' : 'none',
                 }}
             >
                 {/* Logotipo */}
@@ -120,16 +135,20 @@ export default function Navbar() {
                             </svg>
                         </button>
 
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 transition-all duration-300 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0">
-                            <div className="bg-[#040e3c]/95 border border-white/10 rounded-xl py-3 w-56 shadow-2xl backdrop-blur-xl">
+                        <div className="absolute top-full right-[-80px] pt-2 transition-all duration-300 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0">
+                            <div
+                                className={`bg-[#040e3c]/95 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-xl overflow-y-auto custom-scrollbar ${categories.length > 8 ? 'w-[450px] grid grid-cols-2 p-4' : 'w-56 py-3'}`}
+                                style={{ maxHeight: '60vh' }}
+                            >
                                 {categories.map((cat) => (
                                     <Link
-                                        key={cat}
-                                        href={`/?category=${cat}`}
+                                        key={cat.id}
+                                        href={`/?category=${cat.name}`}
                                         scroll={false}
-                                        className="block px-6 py-2.5 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-all text-center cursor-pointer"
+                                        className="flex items-center px-4 py-2.5 text-sm text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer whitespace-nowrap"
                                     >
-                                        {cat}
+                                        <div className="w-1.5 h-1.5 rounded-full bg-[#1e3a8a] mr-3 opacity-0 transition-opacity group-hover:opacity-100 shrink-0" />
+                                        {cat.name}
                                     </Link>
                                 ))}
                             </div>
@@ -185,7 +204,7 @@ export default function Navbar() {
                         </div>
 
                         {/* Links principais */}
-                        <div className="flex flex-col gap-2 p-6 overflow-y-auto">
+                        <div className="flex flex-col gap-2 p-6 overflow-y-auto custom-scrollbar">
                             <Link
                                 href="/"
                                 onClick={() => setIsMenuOpen(false)}
@@ -207,13 +226,13 @@ export default function Navbar() {
                                 <div className="grid grid-cols-1 gap-2">
                                     {categories.map((cat) => (
                                         <Link
-                                            key={cat}
-                                            href={`/?category=${cat}`}
+                                            key={cat.id}
+                                            href={`/?category=${cat.name}`}
                                             scroll={false}
                                             onClick={() => setIsMenuOpen(false)}
                                             className="text-base text-white/70 py-2 hover:text-[#D8C28A] transition-colors"
                                         >
-                                            {cat}
+                                            {cat.name}
                                         </Link>
                                     ))}
                                 </div>
