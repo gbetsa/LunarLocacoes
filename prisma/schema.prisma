@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  products  Product[] @relation("ProductToCategory")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id             String     @id @default(uuid())
+  name           String
+  description    String
+  available      Boolean    @default(true)
+  rentalPeriod   String
+  image          String?
+  categories     Category[] @relation("ProductToCategory")
+  specifications Json? // Array de {label, value}
+  minQuantity    Int        @default(1)
+  whatsapp       String?
+  tags           String? // String separada por vírgulas ou JSON
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
