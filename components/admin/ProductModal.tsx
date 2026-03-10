@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import CustomSelect from './CustomSelect';
 
 interface Category {
     id: string;
@@ -163,7 +164,7 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto">
+                <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto custom-scrollbar">
                     {error && (
                         <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded-lg text-sm">
                             {error}
@@ -237,7 +238,7 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                                 rows={6}
                                 value={description}
                                 onChange={e => setDescription(e.target.value)}
-                                className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#D8C28A]/50 resize-y min-h-[120px] max-h-[300px] text-sm leading-relaxed"
+                                className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#D8C28A]/50 resize-y min-h-[120px] max-h-[300px] text-sm leading-relaxed custom-scrollbar"
                                 placeholder="Material, uso, detalhes..."
                             />
                         </div>
@@ -245,16 +246,15 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-xs text-gray-400 uppercase tracking-widest mb-1">Categoria Principal</label>
-                                <select
+                                <CustomSelect
                                     value={categoryId}
-                                    onChange={e => setCategoryId(e.target.value)}
-                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#D8C28A]/50 text-sm"
-                                >
-                                    <option value="">Sem categoria</option>
-                                    {categories.map(cat => (
-                                        <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                    ))}
-                                </select>
+                                    onChange={setCategoryId}
+                                    options={[
+                                        { label: 'Sem categoria', value: '' },
+                                        ...categories.map(cat => ({ label: cat.name, value: cat.id }))
+                                    ]}
+                                    className="w-full"
+                                />
                             </div>
 
                             <div className="flex flex-col justify-end pb-1">

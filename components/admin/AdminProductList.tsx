@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import CategoryManager from './CategoryManager';
 import ProductModal from './ProductModal';
+import CustomSelect from './CustomSelect';
 
 interface Category {
     id: string;
@@ -32,6 +33,8 @@ interface AdminProductListProps {
 export default function AdminProductList({ initialProducts, categories }: AdminProductListProps) {
     const [products, setProducts] = useState<Product[]>(initialProducts);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState<string>('all');
+    const [selectedAvailability, setSelectedAvailability] = useState<string>('all');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isCatModalOpen, setIsCatModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<Product | undefined>(undefined);
@@ -87,39 +90,73 @@ export default function AdminProductList({ initialProducts, categories }: AdminP
         }
     };
 
-    const filteredProducts = products.filter(p =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredProducts = products.filter(p => {
+        const textToSearch = searchTerm.toLowerCase();
+        const matchesSearch = !searchTerm ||
+            p.name.toLowerCase().includes(textToSearch) ||
+            p.description.toLowerCase().includes(textToSearch);
+
+        const matchesCategory = selectedCategory === 'all' || p.categoryId === selectedCategory;
+
+        const matchesAvailability = selectedAvailability === 'all' ||
+            (selectedAvailability === 'available' ? p.available : !p.available);
+
+        return matchesSearch && matchesCategory && matchesAvailability;
+    });
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#141414] p-4 rounded-xl border border-white/5">
-                <div className="relative w-full sm:w-96">
-                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    <input
-                        type="text"
-                        placeholder="Buscar por nome ou descrição..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-black/40 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-[#D8C28A]/50 transition-all"
-                    />
+            <div className="flex flex-col gap-4 bg-[#141414] p-4 rounded-xl border border-white/5">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="relative w-full sm:w-96">
+                        <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input
+                            type="text"
+                            placeholder="Buscar por nome ou descrição..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full bg-black/40 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-[#D8C28A]/50 transition-all"
+                        />
+                    </div>
+                    <div className="flex gap-2 w-full sm:w-auto">
+                        <button
+                            onClick={() => setIsCatModalOpen(true)}
+                            className="flex-1 sm:flex-none px-6 py-2 bg-white/5 text-white border border-white/10 rounded-lg text-sm font-medium hover:bg-white/10 transition-all"
+                        >
+                            Categorias
+                        </button>
+                        <button
+                            onClick={() => handleOpenModal()}
+                            className="flex-1 sm:flex-none px-6 py-2 bg-[#D8C28A] text-black rounded-lg text-sm font-semibold hover:scale-[1.02] active:scale-95 transition-all"
+                        >
+                            + Novo Produto
+                        </button>
+                    </div>
                 </div>
-                <div className="flex gap-2 w-full sm:w-auto">
-                    <button
-                        onClick={() => setIsCatModalOpen(true)}
-                        className="flex-1 sm:flex-none px-6 py-2 bg-white/5 text-white border border-white/10 rounded-lg text-sm font-medium hover:bg-white/10 transition-all"
-                    >
-                        Categorias
-                    </button>
-                    <button
-                        onClick={() => handleOpenModal()}
-                        className="flex-1 sm:flex-none px-6 py-2 bg-[#D8C28A] text-black rounded-lg text-sm font-semibold hover:scale-[1.02] active:scale-95 transition-all"
-                    >
-                        + Novo Produto
-                    </button>
+
+                <div className="flex flex-col sm:flex-row gap-4 border-t border-white/5 pt-4">
+                    <CustomSelect
+                        value={selectedCategory}
+                        onChange={setSelectedCategory}
+                        options={[
+                            { label: 'Todas as Categorias', value: 'all' },
+                            ...categories.map(cat => ({ label: cat.name, value: cat.id }))
+                        ]}
+                        className="w-full xl:w-auto min-w-[200px]"
+                    />
+
+                    <CustomSelect
+                        value={selectedAvailability}
+                        onChange={setSelectedAvailability}
+                        options={[
+                            { label: 'Todos os Status', value: 'all' },
+                            { label: 'Apenas Disponível', value: 'available' },
+                            { label: 'Apenas Indisponível', value: 'unavailable' }
+                        ]}
+                        className="w-full xl:w-auto min-w-[190px]"
+                    />
                 </div>
             </div>
 
