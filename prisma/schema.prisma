@@ -10,25 +10,26 @@ datasource db {
 model Category {
   id        String    @id @default(uuid())
   name      String    @unique
-  products  Product[] @relation("ProductToCategory")
+  products  Product[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
 
 model Product {
-  id             String     @id @default(uuid())
+  id             String    @id @default(uuid())
   name           String
   description    String
-  available      Boolean    @default(true)
+  images         String[]
+  available      Boolean   @default(true)
   rentalPeriod   String
-  image          String?
-  categories     Category[] @relation("ProductToCategory")
-  specifications Json? // Array de {label, value}
-  minQuantity    Int        @default(1)
+  categoryId     String?
+  category       Category? @relation(fields: [categoryId], references: [id])
+  specifications Json?
+  minQuantity    Int       @default(1)
   whatsapp       String?
-  tags           String? // String separada por vírgulas ou JSON
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  tags           String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
 
 model User {

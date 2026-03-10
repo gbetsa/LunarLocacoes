@@ -1,4 +1,5 @@
 import { productRepository, ProductFilter } from '../repositories/ProductRepository';
+import { uploadService } from './UploadService';
 
 export class ProductService {
     async getAllProducts(filters: ProductFilter) {
@@ -14,26 +15,53 @@ export class ProductService {
     }
 
     async createProduct(data: any) {
-        const { categoryIds, ...rest } = data;
+        const { categoryId, tags, images, ...rest } = data;
         return productRepository.create({
             ...rest,
-            categories: categoryIds ? {
-                connect: categoryIds.map((id: string) => ({ id }))
-            } : undefined
+            tags: tags || null,
+            images: images || { set: [] },
+            category: categoryId ? { connect: { id: categoryId } } : undefined,
         });
     }
 
     async updateProduct(id: string, data: any) {
-        const { categoryIds, ...rest } = data;
-        return productRepository.update(id, {
-            ...rest,
-            categories: categoryIds ? {
-                set: categoryIds.map((id: string) => ({ id }))
-            } : undefined
-        });
+        const { categoryId, tags, images, ...rest } = data;
+
+        const updateData: any = { ...rest };
+
+        if ('tags' in data) {
+            updateData.tags = tags || null;
+        }
+
+        if ('images' in data) {
+            updateData.images = { set: images || [] };
+
+            // Apaga do Blob as imagens que foram removidas pelo usuário
+            const oldProduct = await productRepository.findById(id);
+            if (oldProduct && oldProduct.images) {
+                const urlsToDelete = oldProduct.images.filter(url => !images?.includes(url));
+                for (const url of urlsToDelete) {
+                    await uploadService.deleteImage(url);
+                }
+            }
+        }
+
+        if ('categoryId' in data) {
+            updateData.category = categoryId
+                ? { connect: { id: categoryId } }
+                : { disconnect: true };
+        }
+
+        return productRepository.update(id, updateData);
     }
 
     async deleteProduct(id: string) {
+        const product = await productRepository.findById(id);
+        if (product && product.images && product.images.length > 0) {
+            for (const url of product.images) {
+                await uploadService.deleteImage(url);
+            }
+        }
         return productRepository.delete(id);
     }
 }

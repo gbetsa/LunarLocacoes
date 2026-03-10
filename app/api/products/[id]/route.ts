@@ -2,21 +2,24 @@ import { productController } from '@/lib/controllers/ProductController';
 
 export async function GET(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    return productController.getById(params.id);
+    const { id } = await params;
+    return productController.getById(id);
 }
 
 export async function PUT(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    return productController.update(request, params.id);
+    const { id } = await params;
+    return productController.update(request, id);
 }
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    return productController.delete(params.id);
+    const { id } = await params;
+    return productController.delete(id);
 }
