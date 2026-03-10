@@ -5,14 +5,14 @@ const prisma = new PrismaClient()
 async function main() {
     console.log('Iniciando seed...')
 
-    // Criar usuário admin inicial usando variáveis de ambiente ou fallbacks seguros
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@lunarlocacoes.com.br'
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'
-    const hashedPassword = await bcrypt.hash(adminPassword, 10)
+    // Criar usuário admin inicial usando variáveis de ambiente
+    const adminEmail = process.env.ADMIN_EMAIL
+    const adminPassword = process.env.ADMIN_PASSWORD
+    const adminName = process.env.ADMIN_NAME || 'Administrador Lunar Locações'
+    const hashedPassword = await bcrypt.hash(adminPassword!, 10)
 
-    const adminName = 'Administrador Lunar Eventos'
-    const existingAdmin = await prisma.user.findFirst({
-        where: { name: adminName }
+    const existingAdmin = await prisma.user.findUnique({
+        where: { email: adminEmail }
     })
 
     if (existingAdmin) {

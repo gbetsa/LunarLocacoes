@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import CustomSelect from './CustomSelect';
+import { productSchema } from '@/lib/validations/product';
+import { z } from 'zod';
 
 interface Category {
     id: string;
@@ -60,6 +62,7 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
     const [uploading, setUploading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
     const tagsList = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(Boolean) : [];
 
@@ -167,6 +170,36 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
         e.preventDefault();
         setSubmitting(true);
         setError('');
+        setFieldErrors({});
+
+        const payload = {
+            name,
+            description,
+            available,
+            images: [...images], // Temporary for validation, will be updated after upload
+            categoryId: categoryId,
+            tags: tagsInput,
+            rentalPeriod: `${minQuantity} ${minQuantity > 1 ? 'dias' : 'dia'}`,
+            minQuantity: Number(minQuantity),
+            specifications,
+        };
+
+        // Pre-validate with Zod (ignoring temporary images for a moment if needed, 
+        // but the schema requires at least one image)
+        const validationImages = [...images, ...newImages.map(() => 'temp-url')];
+        const validationPayload = { ...payload, images: validationImages };
+
+        const result = productSchema.safeParse(validationPayload);
+        if (!result.success) {
+            const errors: Record<string, string> = {};
+            result.error.issues.forEach((issue) => {
+                const path = issue.path[0] as string;
+                errors[path] = issue.message;
+            });
+            setFieldErrors(errors);
+            setSubmitting(false);
+            return;
+        }
 
         try {
             // Fazer upload das novas imagens primeiro
@@ -184,16 +217,9 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                 setUploading(false);
             }
 
-            const payload = {
-                name,
-                description,
-                available,
+            const finalPayload = {
+                ...payload,
                 images: [...images, ...uploadedUrls],
-                categoryId: categoryId || null,
-                tags: tagsInput || null,
-                rentalPeriod: `${minQuantity} ${minQuantity > 1 ? 'dias' : 'dia'}`,
-                minQuantity: Number(minQuantity),
-                specifications,
             };
 
             const url = product ? `/api/products/${product.id}` : '/api/products';
@@ -201,7 +227,7 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
             const res = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(finalPayload),
             });
 
             if (!res.ok) {
@@ -251,31 +277,32 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                                 <label className="block text-xs text-gray-400 uppercase tracking-widest mb-1">Nome do Produto</label>
                                 <input
                                     type="text"
-                                    required
                                     value={name}
                                     onChange={e => setName(e.target.value)}
-                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#D8C28A]/50 text-sm"
+                                    className={`w-full bg-black/40 border ${fieldErrors.name ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#D8C28A]/50 text-sm`}
                                     placeholder="Ex: Cadeira Tiffany Dourada"
                                 />
+                                {fieldErrors.name && <p className="text-red-500 text-[10px] mt-1 uppercase tracking-tight">{fieldErrors.name}</p>}
                             </div>
                             <div>
                                 <label className="block text-xs text-gray-400 uppercase tracking-widest mb-1">Período de Locação (em dias)</label>
                                 <input
                                     type="number"
                                     min="1"
-                                    required
                                     value={minQuantity}
                                     onChange={e => setMinQuantity(Number(e.target.value))}
-                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#D8C28A]/50 text-sm"
+                                    className={`w-full bg-black/40 border ${fieldErrors.minQuantity ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#D8C28A]/50 text-sm`}
                                 />
+                                {fieldErrors.minQuantity && <p className="text-red-500 text-[10px] mt-1 uppercase tracking-tight">{fieldErrors.minQuantity}</p>}
                             </div>
                         </div>
 
                         <div>
                             <div className="flex justify-between items-center mb-2">
-                                <label className="block text-xs text-gray-400 uppercase tracking-widest">Imagens do Produto</label>
+                                <label className={`block text-xs uppercase tracking-widest ${fieldErrors.images ? 'text-red-500' : 'text-gray-400'}`}>Imagens do Produto</label>
                                 <span className="text-xs text-gray-500">{images.length + newImages.length} fotos total</span>
                             </div>
+                            {fieldErrors.images && <p className="text-red-500 text-[10px] mb-2 uppercase tracking-tight">{fieldErrors.images}</p>}
 
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                 {images.map((imgUrl, index) => (
@@ -342,13 +369,13 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                         <div>
                             <label className="block text-xs text-gray-400 uppercase tracking-widest mb-1">Descrição</label>
                             <textarea
-                                required
                                 rows={4}
                                 value={description}
                                 onChange={e => setDescription(e.target.value)}
-                                className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#D8C28A]/50 resize-y min-h-[80px] max-h-[200px] text-sm leading-relaxed custom-scrollbar"
+                                className={`w-full bg-black/40 border ${fieldErrors.description ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#D8C28A]/50 resize-y min-h-[80px] max-h-[200px] text-sm leading-relaxed custom-scrollbar`}
                                 placeholder="Material, uso, detalhes..."
                             />
+                            {fieldErrors.description && <p className="text-red-500 text-[10px] mt-1 uppercase tracking-tight">{fieldErrors.description}</p>}
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -358,11 +385,13 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                                     value={categoryId}
                                     onChange={setCategoryId}
                                     options={[
-                                        { label: 'Sem categoria', value: '' },
+                                        { label: 'Selecione uma categoria...', value: '' },
                                         ...categories.map(cat => ({ label: cat.name, value: cat.id }))
                                     ]}
+                                    error={!!fieldErrors.categoryId}
                                     className="w-full"
                                 />
+                                {fieldErrors.categoryId && <p className="text-red-500 text-[10px] mt-1 uppercase tracking-tight">{fieldErrors.categoryId}</p>}
                             </div>
 
                             <div className="flex flex-col justify-end pb-1">
@@ -392,7 +421,7 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                                     value={currentTag}
                                     onChange={e => setCurrentTag(e.target.value)}
                                     onKeyDown={handleTagKeyDown}
-                                    className="flex-1 bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#D8C28A]/50 text-sm"
+                                    className={`flex-1 bg-black/40 border ${fieldErrors.tags ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#D8C28A]/50 text-sm`}
                                     placeholder="Ex: dourado, 4 pés..."
                                 />
                                 <button
@@ -403,6 +432,7 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                                     +
                                 </button>
                             </div>
+                            {fieldErrors.tags && <p className="text-red-500 text-[10px] mt-1 uppercase tracking-tight">{fieldErrors.tags}</p>}
                             {tagsList.length > 0 && (
                                 <div className="flex flex-wrap gap-1.5 mt-2">
                                     {tagsList.map(tag => (
@@ -428,7 +458,7 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                                     value={newSpecLabel}
                                     onChange={e => setNewSpecLabel(e.target.value)}
                                     onKeyDown={handleSpecKeyDown}
-                                    className="flex-1 bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#D8C28A]/50 text-sm"
+                                    className={`flex-1 bg-black/40 border ${fieldErrors.specifications ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#D8C28A]/50 text-sm`}
                                     placeholder="Rótulo (ex: Peso)"
                                 />
                                 <input
@@ -436,7 +466,7 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                                     value={newSpecValue}
                                     onChange={e => setNewSpecValue(e.target.value)}
                                     onKeyDown={handleSpecKeyDown}
-                                    className="flex-1 bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#D8C28A]/50 text-sm"
+                                    className={`flex-1 bg-black/40 border ${fieldErrors.specifications ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#D8C28A]/50 text-sm`}
                                     placeholder="Valor (ex: 10kg)"
                                 />
                                 <button
@@ -447,6 +477,7 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
                                     Add
                                 </button>
                             </div>
+                            {fieldErrors.specifications && <p className="text-red-500 text-[10px] mb-2 uppercase tracking-tight">{fieldErrors.specifications}</p>}
 
                             {specifications.length > 0 && (
                                 <div className="space-y-2">

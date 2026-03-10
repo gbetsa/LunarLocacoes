@@ -13,9 +13,10 @@ interface CustomSelectProps {
     options: Option[];
     placeholder?: string;
     className?: string;
+    error?: boolean;
 }
 
-export default function CustomSelect({ value, onChange, options, placeholder = 'Selecione', className = '' }: CustomSelectProps) {
+export default function CustomSelect({ value, onChange, options, placeholder = 'Selecione', className = '', error }: CustomSelectProps) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -38,7 +39,7 @@ export default function CustomSelect({ value, onChange, options, placeholder = '
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-gray-300 hover:border-white/20 focus:outline-none focus:border-[#D8C28A]/50 transition-all cursor-pointer"
+                className={`w-full flex items-center justify-between bg-black/40 border ${error ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-2.5 text-sm text-gray-300 hover:border-white/20 focus:outline-none focus:border-[#D8C28A]/50 transition-all cursor-pointer`}
             >
                 <span className="truncate pr-4">{selectedOption ? selectedOption.label : placeholder}</span>
                 <svg

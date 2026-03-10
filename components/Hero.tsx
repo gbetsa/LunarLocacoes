@@ -43,11 +43,11 @@ export default function Hero() {
             }} />
 
             {/* ── Conteúdo Principal ── */}
-            <div className="relative z-10 flex flex-col items-center gap-7 px-6 pt-36 pb-36 max-w-4xl w-full mx-auto">
+            <div className="relative z-10 flex flex-col items-center gap-6 sm:gap-7 px-6 pt-24 sm:pt-36 pb-24 sm:pb-36 max-w-4xl w-full mx-auto">
 
                 {/* Selo de Destaque */}
                 <div
-                    className="inline-flex items-center gap-2 px-5 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest"
+                    className="inline-flex items-center gap-2 px-4 sm:px-5 py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest"
                     style={{
                         background: 'linear-gradient(135deg, #D8C28A, #ede0b5)',
                         color: '#2a1e00',
@@ -64,13 +64,14 @@ export default function Hero() {
                 <h1
                     className="font-extrabold leading-[1.12] tracking-tight"
                     style={{
-                        fontSize: 'clamp(2.2rem, 5vw, 3.6rem)',
+                        fontSize: 'clamp(1.8rem, 8vw, 3.6rem)',
                         color: '#fff',
                         textShadow: '0 4px 32px rgba(0,0,0,0.5)',
                     }}
                 >
                     Transforme Suas Necessidades Em
-                    <br />
+                    <br className="hidden sm:block" />
+                    {' '}
                     <span
                         style={{
                             background: 'linear-gradient(90deg, #D8C28A, #ede0b5, #c5a96b)',
@@ -88,7 +89,7 @@ export default function Hero() {
 
                 {/* Subtexto */}
                 <p
-                    className="text-base md:text-lg max-w-2xl leading-relaxed"
+                    className="text-sm sm:text-base md:text-lg max-w-2xl leading-relaxed"
                     style={{ color: 'rgba(220, 232, 255, 0.85)' }}
                 >
                     Equipamentos, mobiliários e itens diversos para locação com

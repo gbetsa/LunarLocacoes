@@ -23,11 +23,11 @@ export default function AdminDashboardContent({ products, categories, user }: Ad
     const [activeTab, setActiveTab] = useState<'products' | 'settings'>('products');
 
     return (
-        <div className="min-h-screen bg-[#0A0A0A] text-white p-8 font-sans">
+        <div className="min-h-screen bg-[#0A0A0A] text-white p-4 sm:p-8 font-sans">
             <div className="max-w-7xl mx-auto">
-                <header className="flex justify-between items-center mb-12 py-6 border-b border-white/5">
+                <header className="flex flex-col sm:flex-row justify-between items-center gap-6 mb-8 sm:mb-12 py-4 sm:py-6 border-b border-white/5">
                     <div className="flex items-center gap-4">
-                        <div className="relative w-10 h-10">
+                        <div className="relative w-9 h-9 sm:w-10 sm:h-10">
                             <Image
                                 src="/assets/lunar-logo.png"
                                 alt="Logo"
@@ -36,17 +36,17 @@ export default function AdminDashboardContent({ products, categories, user }: Ad
                             />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-light tracking-tight">
+                            <h1 className="text-xl sm:text-2xl font-light tracking-tight">
                                 Bem-vindo, <span className="text-[#D8C28A] font-medium">{user?.name || 'Admin'}</span>
                             </h1>
-                            <p className="text-gray-500 text-xs mt-0.5 uppercase tracking-widest">Painel Administrativo</p>
+                            <p className="text-gray-500 text-[10px] sm:text-xs mt-0.5 uppercase tracking-widest">Painel Administrativo</p>
                         </div>
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
                         <Link
                             href="/"
-                            className="flex items-center gap-2 px-5 py-2 rounded-xl border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all text-sm font-medium group cursor-pointer"
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-5 py-2 rounded-xl border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all text-sm font-medium group cursor-pointer"
                         >
                             <svg className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -54,10 +54,10 @@ export default function AdminDashboardContent({ products, categories, user }: Ad
                             </svg>
                             Ver Site
                         </Link>
-                        <form action={logoutAction}>
+                        <form action={logoutAction} className="flex-1 sm:flex-none">
                             <button
                                 type="submit"
-                                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-red-500/5 text-red-500/80 border border-red-500/10 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all text-sm font-bold cursor-pointer group"
+                                className="w-full flex items-center justify-center gap-2 px-4 sm:px-5 py-2 rounded-xl bg-red-500/5 text-red-500/80 border border-red-500/10 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all text-sm font-bold cursor-pointer group"
                             >
                                 <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

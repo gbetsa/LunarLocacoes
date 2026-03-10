@@ -163,7 +163,8 @@ export default function AdminProductList({ initialProducts, categories }: AdminP
                 </div>
             </div>
 
-            <div className="overflow-x-auto rounded-xl border border-white/5 bg-[#141414]">
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto rounded-xl border border-white/5 bg-[#141414]">
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="border-b border-white/5 text-xs uppercase tracking-widest text-gray-500">
@@ -274,6 +275,82 @@ export default function AdminProductList({ initialProducts, categories }: AdminP
                 {filteredProducts.length === 0 && (
                     <div className="py-20 text-center">
                         <p className="text-gray-500 italic">Nenhum produto encontrado.</p>
+                    </div>
+                )}
+            </div>
+
+            {/* Mobile Cards */}
+            <div className="md:hidden space-y-4">
+                {filteredProducts.map((product) => (
+                    <div key={product.id} className="bg-[#141414] border border-white/5 rounded-2xl p-4 space-y-4">
+                        <div className="flex items-center gap-4">
+                            <div className="relative w-16 h-16 bg-black rounded-xl overflow-hidden border border-white/10 shrink-0">
+                                {product.images?.[0] ? (
+                                    <Image
+                                        src={product.images[0]}
+                                        alt={product.name}
+                                        fill
+                                        className="object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-[8px] text-gray-600">SEM FOTO</div>
+                                )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <h4 className="text-sm font-bold text-white truncate">{product.name}</h4>
+                                <p className="text-xs text-gray-500 line-clamp-1">{product.description}</p>
+                                <div className="mt-1 flex flex-wrap gap-1">
+                                    {product.category && (
+                                        <span className="text-[9px] px-2 py-0.5 bg-[#D8C28A]/10 text-[#D8C28A] rounded-full">
+                                            {product.category.name}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-3 border-t border-white/5">
+                            <label className={`relative inline-flex items-center gap-2 cursor-pointer ${togglingId === product.id ? 'opacity-50 cursor-wait' : ''}`}>
+                                <div className="relative shrink-0">
+                                    <input
+                                        type="checkbox"
+                                        className="sr-only peer"
+                                        checked={product.available}
+                                        disabled={togglingId === product.id}
+                                        onChange={() => handleToggleAvailability(product)}
+                                    />
+                                    <div className="w-8 h-4.5 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-[#D8C28A]"></div>
+                                </div>
+                                <span className={`text-[10px] font-bold uppercase tracking-wider ${product.available ? 'text-[#D8C28A]' : 'text-gray-500'}`}>
+                                    {product.available ? 'Disponível' : 'Indisponível'}
+                                </span>
+                            </label>
+
+                            <div className="flex gap-2">
+                                <button
+                                    className="p-2.5 bg-white/5 border border-white/10 rounded-lg text-white/80 hover:text-[#D8C28A] transition-colors"
+                                    onClick={() => handleOpenModal(product)}
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                </button>
+                                <button
+                                    className="p-2.5 bg-red-500/5 border border-red-500/10 rounded-lg text-red-500/80 hover:text-red-500 transition-colors"
+                                    onClick={() => confirmDelete(product)}
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+
+                {filteredProducts.length === 0 && (
+                    <div className="py-12 text-center bg-[#141414] border border-white/5 rounded-2xl">
+                        <p className="text-gray-500 text-sm italic">Nenhum produto encontrado.</p>
                     </div>
                 )}
             </div>

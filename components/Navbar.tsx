@@ -59,8 +59,8 @@ export default function Navbar({ categories, user }: { categories: Category[], u
                 }}
             >
                 {/* Logotipo */}
-                <Link href="/" className="flex items-center gap-3 group shrink-0 cursor-pointer">
-                    <div className="relative w-9 h-9">
+                <Link href="/" className="flex items-center gap-2 sm:gap-3 group shrink-0 cursor-pointer">
+                    <div className="relative w-8 h-8 sm:w-9 sm:h-9">
                         <Image
                             src="/assets/lunar-logo.png"
                             alt="Lunar Locações Logo"
@@ -69,7 +69,7 @@ export default function Navbar({ categories, user }: { categories: Category[], u
                             priority
                         />
                     </div>
-                    <span className="hidden sm:block text-base font-semibold tracking-wide text-white/90 group-hover:text-white transition-colors whitespace-nowrap">
+                    <span className="hidden lg:block text-base font-semibold tracking-wide text-white/90 group-hover:text-white transition-colors whitespace-nowrap">
                         Lunar Locações
                     </span>
                 </Link>
@@ -95,8 +95,8 @@ export default function Navbar({ categories, user }: { categories: Category[], u
                             (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(255,255,255,0.18)';
                         }}
                     >
-                        <div className="flex-1 flex items-center px-4 gap-2.5">
-                            <svg className="w-4 h-4 shrink-0 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex-1 flex items-center px-2 sm:px-4 gap-2">
+                            <svg className="hidden xs:block w-4 h-4 shrink-0 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                             <input
@@ -105,12 +105,12 @@ export default function Navbar({ categories, user }: { categories: Category[], u
                                 onChange={(e) => setQuery(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                 placeholder="Buscar itens..."
-                                className="bg-transparent border-none outline-none w-full py-2.5 text-sm text-white placeholder-white/30"
+                                className="bg-transparent border-none outline-none w-full py-2 sm:py-2.5 text-sm text-white placeholder-white/30"
                             />
                         </div>
                         <button
                             onClick={handleSearch}
-                            className="shrink-0 m-1 px-4 py-2 rounded-[8px] text-xs font-semibold transition-all hover:brightness-110 active:scale-95 cursor-pointer"
+                            className="shrink-0 m-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[8px] text-xs font-semibold transition-all hover:brightness-110 active:scale-95 cursor-pointer"
                             style={{
                                 background: 'linear-gradient(135deg, #1e3a8a, #2b52c8)',
                                 color: '#fff',

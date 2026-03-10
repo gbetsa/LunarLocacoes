@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { settingsSchema } from '@/lib/validations/settings';
 
 export default function SettingsTab() {
     const [whatsapp, setWhatsapp] = useState('');
@@ -41,8 +42,15 @@ export default function SettingsTab() {
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
-        setSaving(true);
         setMessage({ type: '', text: '' });
+
+        const result = settingsSchema.safeParse({ whatsapp });
+        if (!result.success) {
+            setMessage({ type: 'error', text: result.error.issues[0].message });
+            return;
+        }
+
+        setSaving(true);
 
         try {
             const res = await fetch('/api/settings', {

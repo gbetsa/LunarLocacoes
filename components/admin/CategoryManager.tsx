@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { categorySchema } from '@/lib/validations/category';
 
 interface Category {
     id: string;
@@ -26,7 +27,13 @@ export default function CategoryManager({ isOpen, onClose, categories: initialCa
 
     const handleAdd = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newCategory.trim()) return;
+        setError('');
+
+        const result = categorySchema.safeParse({ name: newCategory });
+        if (!result.success) {
+            setError(result.error.issues[0].message);
+            return;
+        }
 
         setLoading(true);
         setError('');
@@ -38,7 +45,10 @@ export default function CategoryManager({ isOpen, onClose, categories: initialCa
                 body: JSON.stringify({ name: newCategory }),
             });
 
-            if (!res.ok) throw new Error('Falha ao criar categoria');
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || 'Falha ao criar categoria');
+            }
 
             const data = await res.json();
             setCategories([...categories, data]);

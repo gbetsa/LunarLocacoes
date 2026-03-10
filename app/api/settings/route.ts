@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { settingsSchema } from '@/lib/validations/settings';
 
 export async function GET() {
     try {
@@ -23,7 +24,15 @@ export async function GET() {
 export async function PUT(request: Request) {
     try {
         const body = await request.json();
-        const { whatsapp } = body;
+        const result = settingsSchema.safeParse(body);
+
+        if (!result.success) {
+            return NextResponse.json({
+                error: result.error.issues[0].message
+            }, { status: 400 });
+        }
+
+        const { whatsapp } = result.data;
 
         const settings = await prisma.settings.findFirst();
 
