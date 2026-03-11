@@ -12,10 +12,14 @@ const WhatsAppContext = createContext<WhatsAppContextType | undefined>(undefined
 
 export function WhatsAppProvider({ children, initialWhatsapp }: { children: React.ReactNode, initialWhatsapp?: string }) {
     const [whatsappNumber, setWhatsappNumber] = useState(initialWhatsapp || '');
-    const [loading, setLoading] = useState(!initialWhatsapp);
+    const [loading, setLoading] = useState(initialWhatsapp === undefined);
 
     useEffect(() => {
-        if (!initialWhatsapp) {
+        if (initialWhatsapp !== undefined) {
+            setWhatsappNumber(initialWhatsapp);
+            setLoading(false);
+        } else {
+            setLoading(true);
             fetch('/api/settings')
                 .then(res => res.json())
                 .then(data => {

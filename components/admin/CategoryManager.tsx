@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { categorySchema } from '@/lib/validations/category';
+import toast from 'react-hot-toast';
 
 interface Category {
     id: string;
@@ -53,9 +54,11 @@ export default function CategoryManager({ isOpen, onClose, categories: initialCa
             const data = await res.json();
             setCategories([...categories, data]);
             setNewCategory('');
+            toast.success('Categoria criada com sucesso!');
             router.refresh();
         } catch (err: any) {
             setError(err.message);
+            toast.error(err.message || 'Erro ao criar categoria');
         } finally {
             setLoading(false);
         }
@@ -68,10 +71,13 @@ export default function CategoryManager({ isOpen, onClose, categories: initialCa
             const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 setCategories(categories.filter(c => c.id !== id));
+                toast.success('Categoria excluída!');
                 router.refresh();
+            } else {
+                toast.error('Erro ao excluir categoria');
             }
         } catch (error) {
-            alert('Erro ao excluir');
+            toast.error('Erro ao excluir categoria');
         }
     };
 

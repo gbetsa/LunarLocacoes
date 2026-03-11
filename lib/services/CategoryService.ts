@@ -1,12 +1,21 @@
 import { categoryRepository } from '../repositories/CategoryRepository';
+import { unstable_cache, revalidateTag, revalidatePath } from 'next/cache';
 
 export class CategoryService {
     async getAllCategories() {
-        return categoryRepository.findAll();
+        return unstable_cache(
+            async () => categoryRepository.findAll(),
+            ['categories-all'],
+            { tags: ['categories'] }
+        )();
     }
 
     async getCategoriesWithProducts() {
-        return categoryRepository.findWithProducts();
+        return unstable_cache(
+            async () => categoryRepository.findWithProducts(),
+            ['categories-with-products'],
+            { tags: ['categories'] }
+        )();
     }
 
     async getCategoryById(id: string) {
@@ -18,15 +27,24 @@ export class CategoryService {
         if (existing) {
             throw new Error('Category already exists');
         }
-        return categoryRepository.create({ name });
+        const category = await categoryRepository.create({ name });
+        revalidateTag('categories', 'default');
+        revalidatePath('/', 'layout');
+        return category;
     }
 
     async updateCategory(id: string, name: string) {
-        return categoryRepository.update(id, { name });
+        const category = await categoryRepository.update(id, { name });
+        revalidateTag('categories', 'default');
+        revalidatePath('/', 'layout');
+        return category;
     }
 
     async deleteCategory(id: string) {
-        return categoryRepository.delete(id);
+        const category = await categoryRepository.delete(id);
+        revalidateTag('categories', 'default');
+        revalidatePath('/', 'layout');
+        return category;
     }
 }
 

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { settingsSchema } from '@/lib/validations/settings';
+import toast from 'react-hot-toast';
 
 export default function SettingsTab() {
     const [whatsapp, setWhatsapp] = useState('');
@@ -61,11 +62,14 @@ export default function SettingsTab() {
 
             if (res.ok) {
                 setMessage({ type: 'success', text: 'Configurações salvas com sucesso!' });
+                toast.success('Configurações salvas com sucesso!');
             } else {
                 setMessage({ type: 'error', text: 'Erro ao salvar configurações.' });
+                toast.error('Erro ao salvar configurações.');
             }
         } catch (error) {
             setMessage({ type: 'error', text: 'Erro de conexão.' });
+            toast.error('Erro de conexão ao salvar.');
         } finally {
             setSaving(false);
         }

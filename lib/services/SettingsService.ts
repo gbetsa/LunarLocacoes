@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+import { unstable_cache, revalidateTag, revalidatePath } from 'next/cache';
 
 export class SettingsService {
     async getSettings() {
@@ -18,10 +19,13 @@ export class SettingsService {
     async updateSettings(whatsapp: string) {
         const settings = await this.getSettings();
 
-        return prisma.settings.update({
+        const updated = await prisma.settings.update({
             where: { id: settings.id },
             data: { whatsapp },
         });
+        revalidateTag('settings', 'default');
+        revalidatePath('/', 'layout');
+        return updated;
     }
 
     async getWhatsAppNumber() {

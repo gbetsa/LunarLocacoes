@@ -15,12 +15,12 @@ export const metadata: Metadata = {
 
 
 const AdminDashboard = async () => {
-    // Busca o usuário logado via servidor para garantir segurança extra
-    const user = (await authService.getCurrentUser()) as AdminUser | null;
-
-    // Busca os dados reais para o dashboard
-    const products = await productService.getAllProducts({});
-    const categories = await categoryService.getAllCategories();
+    // Busca os dados em paralelo para melhorar a performance
+    const [user, products, categories] = await Promise.all([
+        authService.getCurrentUser() as Promise<AdminUser | null>,
+        productService.getAllProducts({}),
+        categoryService.getAllCategories()
+    ]);
 
     return <AdminDashboardContent products={products} categories={categories} user={user} />;
 };
