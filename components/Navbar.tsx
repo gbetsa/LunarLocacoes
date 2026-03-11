@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { useWhatsApp } from '@/context/WhatsAppContext';
+import { useSettings } from '@/context/WhatsAppContext';
 
 import { AdminUser } from '@/lib/controllers/AuthController';
 
@@ -14,7 +14,7 @@ interface Category {
 }
 
 export default function Navbar({ categories, user }: { categories: Category[], user?: AdminUser | null }) {
-    const { getWhatsAppLink } = useWhatsApp();
+    const { getWhatsAppLink, email, refreshSettings } = useSettings();
     const router = useRouter();
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -159,14 +159,54 @@ export default function Navbar({ categories, user }: { categories: Category[], u
                             </div>
                         </div>
                     </div>
-                    <a
-                        href={getWhatsAppLink()}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="relative hover:text-white transition-colors cursor-pointer"
-                    >
-                        Contato
-                    </a>
+                    <div className="group relative py-2">
+                        <button className="flex items-center gap-1.5 hover:text-white transition-colors focus:outline-none cursor-pointer text-sm font-medium">
+                            Contato
+                            <svg className="w-3.5 h-3.5 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+
+                        <div className="absolute top-full right-0 pt-2 transition-all duration-300 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0">
+                            <div className="bg-[#040e3c]/95 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-xl w-64 py-3">
+                                <button
+                                    onClick={async () => {
+                                        const { whatsapp } = await refreshSettings();
+                                        window.open(getWhatsAppLink(whatsapp), '_blank');
+                                    }}
+                                    className="w-full flex items-center px-4 py-3 text-sm text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer text-left"
+                                >
+                                    <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center mr-3 shrink-0">
+                                        <svg className="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+                                            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.534 5.845L.057 23.492a.5.5 0 00.626.606l5.775-1.515A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.877 9.877 0 01-5.032-1.374l-.36-.214-3.733.979.996-3.638-.235-.374A9.856 9.856 0 012.118 12C2.118 6.56 6.56 2.118 12 2.118S21.882 6.56 21.882 12 17.44 21.882 12 21.882z" />
+                                        </svg>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="font-semibold">WhatsApp</span>
+                                        <span className="text-[10px] opacity-60">Atendimento imediato</span>
+                                    </div>
+                                </button>
+                                <button
+                                    onClick={async () => {
+                                        const { email } = await refreshSettings();
+                                        window.location.href = `mailto:${email}`;
+                                    }}
+                                    className="w-full flex items-center px-4 py-3 text-sm text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer text-left"
+                                >
+                                    <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center mr-3 shrink-0">
+                                        <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="font-semibold">E-mail</span>
+                                        <span className="text-[10px] opacity-60">Envie sua mensagem</span>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Botão Menu Mobile */}
@@ -219,15 +259,49 @@ export default function Navbar({ categories, user }: { categories: Category[], u
                             >
                                 Home
                             </Link>
-                            <a
-                                href={getWhatsAppLink()}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={() => setIsMenuOpen(false)}
-                                className="text-xl font-semibold text-white/90 py-3 border-b border-white/5"
-                            >
-                                Contato
-                            </a>
+
+                            <div className="py-4 border-b border-white/5">
+                                <h4 className="text-xs font-bold text-[#D8C28A] uppercase tracking-widest mb-4">Canais de Contato</h4>
+                                <div className="flex flex-col gap-4">
+                                    <button
+                                        onClick={async () => {
+                                            const { whatsapp } = await refreshSettings();
+                                            window.open(getWhatsAppLink(whatsapp), '_blank');
+                                            setIsMenuOpen(false);
+                                        }}
+                                        className="flex items-center gap-3 text-white/80 hover:text-white text-left w-full"
+                                    >
+                                        <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
+                                            <svg className="w-5 h-5 text-green-500" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+                                                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.534 5.845L.057 23.492a.5.5 0 00.626.606l5.775-1.515A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.877 9.877 0 01-5.032-1.374l-.36-.214-3.733.979.996-3.638-.235-.374A9.856 9.856 0 012.118 12C2.118 6.56 6.56 2.118 12 2.118S21.882 6.56 21.882 12 17.44 21.882 12 21.882z" />
+                                            </svg>
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="font-semibold">WhatsApp</span>
+                                            <span className="text-xs opacity-50">Atendimento rápido</span>
+                                        </div>
+                                    </button>
+                                    <button
+                                        onClick={async () => {
+                                            const { email } = await refreshSettings();
+                                            window.location.href = `mailto:${email}`;
+                                            setIsMenuOpen(false);
+                                        }}
+                                        className="flex items-center gap-3 text-white/80 hover:text-white text-left w-full"
+                                    >
+                                        <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                                            <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="font-semibold">E-mail</span>
+                                            <span className="text-xs opacity-50">Envie uma mensagem</span>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
 
                             {/* Categorias Accordion-style (list) */}
                             <div className="mt-4">

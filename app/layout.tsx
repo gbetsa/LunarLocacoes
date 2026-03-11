@@ -76,20 +76,21 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [categories, whatsapp, user] = await Promise.all([
+  const [categories, settings, user] = await Promise.all([
     categoryService.getCategoriesWithProducts(),
-    settingsService.getWhatsAppNumber(),
+    settingsService.getSettings(),
     authService.getCurrentUser() as Promise<AdminUser | null>
   ]);
 
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ClientLayout
           categories={JSON.parse(JSON.stringify(categories))}
-          whatsapp={whatsapp}
+          whatsapp={settings.whatsapp || ''}
+          email={settings.email || ''}
           user={user}
         >
           {children}
