@@ -13,7 +13,7 @@ export async function proxy(request: NextRequest) {
     const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
     const cspHeader = `
         default-src 'self';
-        script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
+        script-src 'nonce-${nonce}' 'strict-dynamic';
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
         img-src 'self' blob: data: *.public.blob.vercel-storage.com https://wa.me https://*.wa.me;
         font-src 'self' https://fonts.gstatic.com;
@@ -36,6 +36,13 @@ export async function proxy(request: NextRequest) {
     
     // Adicionar o cabeçalho na resposta para o navegador
     response.headers.set('Content-Security-Policy', cspHeader);
+
+    // Remover identificadores de tecnologia (Fingerprinting)
+    response.headers.delete('X-Powered-By');
+    response.headers.delete('X-Nextjs-Cache');
+    response.headers.delete('X-Vercel-Cache');
+    response.headers.delete('X-Vercel-Id');
+    response.headers.delete('Server');
 
     const token = request.cookies.get('auth_token')?.value;
 
@@ -77,16 +84,6 @@ export async function proxy(request: NextRequest) {
     return response;
 }
 
-// Configurar as rotas que o proxy deve observar (Matcher Completo)
 export const config = {
-    matcher: [
-        /*
-         * Corresponder a todos os caminhos exceto:
-         * - _next/static (arquivos estáticos)
-         * - _next/image (arquivos de otimização de imagem)
-         * - favicon.ico (ícone)
-         * - assets (arquivos públicos)
-         */
-        '/((?!_next/static|_next/image|favicon.ico|assets).*)',
-    ],
+    matcher: ['/:path*'],
 };
