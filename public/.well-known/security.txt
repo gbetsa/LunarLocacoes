@@ -1,0 +1,4 @@
+Contact: mailto:contato@lunarlocacoes.com.br
+Expires: 2027-03-11T14:00:00.000Z
+Preferred-Languages: pt-br, en
+Canonical: https://lunarlocacoes.vercel.app/.well-known/security.txt
