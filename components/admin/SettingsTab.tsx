@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 
 export default function SettingsTab() {
     const [whatsapp, setWhatsapp] = useState('');
+    const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
@@ -20,6 +21,7 @@ export default function SettingsTab() {
             if (res.ok) {
                 const data = await res.json();
                 setWhatsapp(formatWhatsApp(data.whatsapp || ''));
+                setEmail(data.email || '');
             }
         } catch (error) {
             console.error('Error fetching settings:', error);
@@ -45,7 +47,7 @@ export default function SettingsTab() {
         e.preventDefault();
         setMessage({ type: '', text: '' });
 
-        const result = settingsSchema.safeParse({ whatsapp });
+        const result = settingsSchema.safeParse({ whatsapp, email });
         if (!result.success) {
             setMessage({ type: 'error', text: result.error.issues[0].message });
             return;
@@ -57,7 +59,7 @@ export default function SettingsTab() {
             const res = await fetch('/api/settings', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ whatsapp }),
+                body: JSON.stringify({ whatsapp, email }),
             });
 
             if (res.ok) {
@@ -101,20 +103,38 @@ export default function SettingsTab() {
                     </div>
 
                     <form onSubmit={handleSave} className="space-y-6">
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">
-                                WhatsApp Principal
-                            </label>
-                            <input
-                                type="text"
-                                value={whatsapp}
-                                onChange={handleWhatsAppChange}
-                                placeholder="Ex: (11) 99151-1233"
-                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#D8C28A]/50 transition-all text-sm"
-                            />
-                            <p className="mt-2 text-xs text-gray-600 italic">
-                                Este número será usado em todos os botões de contato da plataforma.
-                            </p>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">
+                                    WhatsApp Principal
+                                </label>
+                                <input
+                                    type="text"
+                                    value={whatsapp}
+                                    onChange={handleWhatsAppChange}
+                                    placeholder="Ex: (11) 99151-1233"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#D8C28A]/50 transition-all text-sm"
+                                />
+                                <p className="mt-2 text-xs text-gray-600 italic">
+                                    Este número será usado em todos os botões de contato da plataforma.
+                                </p>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">
+                                    E-mail de Contato
+                                </label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="Ex: contato@lunarlocacoes.com.br"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#D8C28A]/50 transition-all text-sm"
+                                />
+                                <p className="mt-2 text-xs text-gray-600 italic">
+                                    Este e-mail será exibido para contato e orçamentos.
+                                </p>
+                            </div>
                         </div>
 
                         {message.text && (

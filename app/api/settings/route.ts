@@ -10,6 +10,7 @@ export async function GET() {
             settings = await prisma.settings.create({
                 data: {
                     whatsapp: '',
+                    email: '',
                 },
             });
         }
@@ -32,20 +33,20 @@ export async function PUT(request: Request) {
             }, { status: 400 });
         }
 
-        const { whatsapp } = result.data;
+        const { whatsapp, email } = result.data;
 
         const settings = await prisma.settings.findFirst();
 
         if (!settings) {
             const newSettings = await prisma.settings.create({
-                data: { whatsapp },
+                data: { whatsapp, email },
             });
             return NextResponse.json(newSettings);
         }
 
         const updatedSettings = await prisma.settings.update({
             where: { id: settings.id },
-            data: { whatsapp },
+            data: { whatsapp, email },
         });
 
         return NextResponse.json(updatedSettings);

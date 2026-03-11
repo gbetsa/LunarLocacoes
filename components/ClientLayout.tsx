@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AdminToolbar from "@/components/admin/AdminToolbar";
-import { WhatsAppProvider } from '@/context/WhatsAppContext';
+import { SettingsProvider } from '@/context/WhatsAppContext';
 import { AdminUser } from '@/lib/controllers/AuthController';
 import { Toaster } from 'react-hot-toast';
 
@@ -12,11 +12,13 @@ export default function ClientLayout({
     children,
     categories,
     whatsapp,
+    email,
     user,
 }: {
     children: React.ReactNode;
     categories: any[];
     whatsapp: string;
+    email: string;
     user: AdminUser | null;
 }) {
     const pathname = usePathname();
@@ -25,7 +27,7 @@ export default function ClientLayout({
     const hideNavbar = pathname?.startsWith('/admin') || pathname?.startsWith('/login');
 
     return (
-        <WhatsAppProvider initialWhatsapp={whatsapp}>
+        <SettingsProvider initialWhatsapp={whatsapp} initialEmail={email}>
             <Toaster
                 position="top-right"
                 toastOptions={{
@@ -41,6 +43,6 @@ export default function ClientLayout({
             {!hideNavbar && <Navbar categories={categories} user={user} />}
             {children}
             {!hideNavbar && <Footer />}
-        </WhatsAppProvider>
+        </SettingsProvider>
     );
 }
