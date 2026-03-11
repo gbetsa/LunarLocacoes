@@ -24,9 +24,9 @@ export class UploadService {
                 .webp({ quality: 80, effort: 6 }) // effort 6 = melhor compressão vs tempo
                 .toBuffer();
 
-            // Gera um nome de arquivo amigável (.webp)
-            const baseName = fileName.split('.')[0] || 'image';
-            const safeFileName = `products/${Date.now()}-${baseName}.webp`;
+            // Gera um nome de arquivo único e aleatório (UUID)
+            const uniqueId = crypto.randomUUID();
+            const safeFileName = `products/${uniqueId}.webp`;
 
             const blob = await put(safeFileName, optimizedBuffer, {
                 access: 'public',
