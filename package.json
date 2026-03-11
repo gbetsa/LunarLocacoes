@@ -10,7 +10,7 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
-    "prod": "npm run db:generate && npm run db:migrate && npm run build && npm run start"
+    "prod": "npm run db:generate && npm run db:migrate && npm run db:seed && npm run build && npm run start"
   },
   "dependencies": {
     "@prisma/client": "^6.19.2",
