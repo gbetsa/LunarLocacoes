@@ -9,6 +9,34 @@ if (!process.env.JWT_SECRET) {
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export async function proxy(request: NextRequest) {
+    // Gerar um nonce dinâmico para o CSP
+    const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+    const cspHeader = `
+        default-src 'self';
+        script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        img-src 'self' blob: data: *.public.blob.vercel-storage.com https://wa.me https://*.wa.me;
+        font-src 'self' https://fonts.gstatic.com;
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+        frame-ancestors 'none';
+        upgrade-insecure-requests;
+    `.replace(/\s{2,}/g, ' ').trim();
+
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('x-nonce', nonce);
+    requestHeaders.set('Content-Security-Policy', cspHeader);
+
+    let response = NextResponse.next({
+        request: {
+            headers: requestHeaders,
+        },
+    });
+    
+    // Adicionar o cabeçalho na resposta para o navegador
+    response.headers.set('Content-Security-Policy', cspHeader);
+
     const token = request.cookies.get('auth_token')?.value;
 
     // Rotas da API que precisam de proteção (Modificações)
@@ -24,7 +52,8 @@ export async function proxy(request: NextRequest) {
 
             try {
                 await jwtVerify(token, JWT_SECRET);
-                return NextResponse.next();
+                // Retornar a resposta com os headers de segurança
+                return response;
             } catch (error) {
                 return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
             }
@@ -39,13 +68,13 @@ export async function proxy(request: NextRequest) {
 
         try {
             await jwtVerify(token, JWT_SECRET);
-            return NextResponse.next();
+            return response;
         } catch (error) {
             return NextResponse.redirect(new URL('/login', request.url));
         }
     }
 
-    return NextResponse.next();
+    return response;
 }
 
 // Configurar as rotas que o proxy deve observar
