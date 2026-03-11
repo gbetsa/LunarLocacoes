@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import CategoryManager from './CategoryManager';
 import ProductModal from './ProductModal';
 import CustomSelect from './CustomSelect';
+import toast from 'react-hot-toast';
 
 interface Category {
     id: string;
@@ -45,6 +46,11 @@ export default function AdminProductList({ initialProducts, categories }: AdminP
     const [deleting, setDeleting] = useState(false);
     const router = useRouter();
 
+    // Sincronizar estado local quando as props mudarem (após router.refresh())
+    useEffect(() => {
+        setProducts(initialProducts);
+    }, [initialProducts]);
+
     const handleOpenModal = (product?: Product) => {
         setSelectedProduct(product);
         setIsModalOpen(true);
@@ -61,10 +67,14 @@ export default function AdminProductList({ initialProducts, categories }: AdminP
             const res = await fetch(`/api/products/${deleteTarget.id}`, { method: 'DELETE' });
             if (res.ok) {
                 setProducts(prev => prev.filter(p => p.id !== deleteTarget.id));
+                toast.success('Produto excluído com sucesso!');
                 router.refresh();
+            } else {
+                toast.error('Erro ao excluir produto');
             }
         } catch (error) {
             console.error(error);
+            toast.error('Erro ao excluir produto');
         } finally {
             setDeleting(false);
             setDeleteTarget(null);
@@ -83,11 +93,15 @@ export default function AdminProductList({ initialProducts, categories }: AdminP
             });
             if (res.ok) {
                 setProducts(prev =>
-                    prev.map(p => p.id === product.id ? { ...p, available: !p.available } : p)
+                    prev.map(p => p.id === product.id ? { ...p, available: !product.available } : p)
                 );
+                toast.success(`Produto ${!product.available ? 'ativado' : 'desativado'}!`);
+            } else {
+                toast.error('Erro ao atualizar status');
             }
         } catch (error) {
             console.error(error);
+            toast.error('Erro ao atualizar status');
         } finally {
             setTogglingId(null);
         }
@@ -364,7 +378,6 @@ export default function AdminProductList({ initialProducts, categories }: AdminP
                     onSuccess={() => {
                         setIsModalOpen(false);
                         router.refresh();
-                        window.location.reload();
                     }}
                 />
             )}

@@ -4,6 +4,7 @@ import ProductsSection from "@/components/ProductsSection";
 import { Suspense } from 'react';
 import { productService } from "@/lib/services/ProductService";
 import { categoryService } from "@/lib/services/CategoryService";
+import HomeSkeleton from "@/components/skeletons/HomeSkeleton";
 
 export const metadata: Metadata = {
   title: {
@@ -13,20 +14,27 @@ export const metadata: Metadata = {
     "Equipamentos, mobiliários e itens diversos para locação com qualidade, rapidez e praticidade. Visite o nosso catálogo e faça seu pedido pelo WhatsApp!",
 };
 
+// Componente separado para buscar os dados, permitindo que o Hero apareça imediatamente
+async function ProductListContainer() {
+  const [products, categories] = await Promise.all([
+    productService.getAllProducts(),
+    categoryService.getCategoriesWithProducts()
+  ]);
 
-export default async function Home() {
-  // Busca os dados iniciais no servidor para SEO e performance
-  const products = await productService.getAllProducts();
-  const categories = await categoryService.getCategoriesWithProducts();
+  return (
+    <ProductsSection
+      initialProducts={JSON.parse(JSON.stringify(products))}
+      categories={JSON.parse(JSON.stringify(categories))}
+    />
+  );
+}
 
+export default function Home() {
   return (
     <main>
       <Hero />
-      <Suspense fallback={<div className="py-20 text-center text-gray-500">Carregando catálogo...</div>}>
-        <ProductsSection
-          initialProducts={JSON.parse(JSON.stringify(products))}
-          categories={JSON.parse(JSON.stringify(categories))}
-        />
+      <Suspense fallback={<HomeSkeleton />}>
+        <ProductListContainer />
       </Suspense>
     </main>
   );

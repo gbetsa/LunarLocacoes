@@ -1,28 +1,42 @@
 import { productRepository, ProductFilter } from '../repositories/ProductRepository';
 import { uploadService } from './UploadService';
+import { unstable_cache, revalidateTag, revalidatePath } from 'next/cache';
 
 export class ProductService {
     async getAllProducts(filters: ProductFilter = {}) {
-        return productRepository.findAll(filters);
+        return unstable_cache(
+            async () => productRepository.findAll(filters),
+            [`products-${JSON.stringify(filters)}`],
+            { tags: ['products'] }
+        )();
     }
 
     async getProductById(id: string) {
-        const product = await productRepository.findById(id);
-        if (!product) {
-            throw new Error('Product not found');
-        }
-        return product;
+        return unstable_cache(
+            async () => {
+                const product = await productRepository.findById(id);
+                if (!product) {
+                    throw new Error('Product not found');
+                }
+                return product;
+            },
+            [`product-${id}`],
+            { tags: ['products', `product-${id}`] }
+        )();
     }
 
     async createProduct(data: any) {
         const { categoryId, tags, images, ...rest } = data;
-        return productRepository.create({
+        const product = await productRepository.create({
             ...rest,
             tags: tags || null,
             images: images || { set: [] },
             specifications: data.specifications || [],
             category: categoryId ? { connect: { id: categoryId } } : undefined,
         });
+        revalidateTag('products', 'default');
+        revalidatePath('/', 'layout');
+        return product;
     }
 
     async updateProduct(id: string, data: any) {
@@ -57,7 +71,10 @@ export class ProductService {
             updateData.specifications = data.specifications || [];
         }
 
-        return productRepository.update(id, updateData);
+        const updated = await productRepository.update(id, updateData);
+        revalidateTag('products', 'default');
+        revalidatePath('/', 'layout');
+        return updated;
     }
 
     async deleteProduct(id: string) {
@@ -67,7 +84,10 @@ export class ProductService {
                 await uploadService.deleteImage(url);
             }
         }
-        return productRepository.delete(id);
+        const deleted = await productRepository.delete(id);
+        revalidateTag('products', 'default');
+        revalidatePath('/', 'layout');
+        return deleted;
     }
 }
 
