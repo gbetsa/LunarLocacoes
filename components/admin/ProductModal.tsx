@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import CustomSelect from './CustomSelect';
 import { productSchema } from '@/lib/validations/product';
-import { z } from 'zod';
+import toast from 'react-hot-toast';
 
 interface Category {
     id: string;
@@ -239,9 +239,11 @@ export default function ProductModal({ isOpen, onClose, product, categories, onS
             newImages.forEach(img => URL.revokeObjectURL(img.previewUrl));
             setNewImages([]);
 
+            toast.success(product ? 'Produto atualizado com sucesso!' : 'Produto criado com sucesso!');
             onSuccess();
         } catch (err: any) {
             setError(err.message);
+            toast.error(err.message || 'Erro ao salvar produto');
             setUploading(false);
         } finally {
             setSubmitting(false);

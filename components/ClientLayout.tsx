@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import AdminToolbar from "@/components/admin/AdminToolbar";
 import { WhatsAppProvider } from '@/context/WhatsAppContext';
 import { AdminUser } from '@/lib/controllers/AuthController';
+import { Toaster } from 'react-hot-toast';
 
 export default function ClientLayout({
     children,
@@ -25,6 +26,17 @@ export default function ClientLayout({
 
     return (
         <WhatsAppProvider initialWhatsapp={whatsapp}>
+            <Toaster
+                position="top-right"
+                toastOptions={{
+                    duration: 4000,
+                    style: {
+                        background: '#141414',
+                        color: '#fff',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                    },
+                }}
+            />
             {!hideNavbar && <AdminToolbar user={user} />}
             {!hideNavbar && <Navbar categories={categories} user={user} />}
             {children}

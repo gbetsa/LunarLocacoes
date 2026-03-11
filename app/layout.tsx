@@ -76,10 +76,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Busca categorias ativas para o Navbar global (Server Side)
-  const categories = await categoryService.getCategoriesWithProducts();
-  const whatsapp = await settingsService.getWhatsAppNumber();
-  const user = await authService.getCurrentUser() as AdminUser | null;
+  const [categories, whatsapp, user] = await Promise.all([
+    categoryService.getCategoriesWithProducts(),
+    settingsService.getWhatsAppNumber(),
+    authService.getCurrentUser() as Promise<AdminUser | null>
+  ]);
 
   return (
     <html lang="pt-BR">
