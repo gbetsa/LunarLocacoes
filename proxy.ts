@@ -9,8 +9,8 @@ if (!process.env.JWT_SECRET) {
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export async function proxy(request: NextRequest) {
-    // Gerar um nonce dinâmico para o CSP (compatível com Edge)
-    const nonce = btoa(crypto.randomUUID());
+    // Gerar um nonce dinâmico para o CSP
+    const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
     const cspHeader = `
         default-src 'self';
         script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
@@ -77,16 +77,15 @@ export async function proxy(request: NextRequest) {
     return response;
 }
 
-// Configurar as rotas que o proxy deve observar
+// Configurar as rotas que o proxy deve observar (Matcher Completo)
 export const config = {
     matcher: [
         /*
-         * Match all request paths except for the ones starting with:
-         * - api (API routes) -> keep these for the auth logic
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         * - assets (public assets)
+         * Corresponder a todos os caminhos exceto:
+         * - _next/static (arquivos estáticos)
+         * - _next/image (arquivos de otimização de imagem)
+         * - favicon.ico (ícone)
+         * - assets (arquivos públicos)
          */
         '/((?!_next/static|_next/image|favicon.ico|assets).*)',
     ],
