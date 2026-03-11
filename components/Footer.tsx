@@ -1,8 +1,7 @@
-import React from 'react';
-import { useWhatsApp } from '@/context/WhatsAppContext';
+import { useSettings } from '@/context/WhatsAppContext';
 
 export default function Footer() {
-    const { whatsappNumber, getWhatsAppLink } = useWhatsApp();
+    const { whatsappNumber, email, getWhatsAppLink, refreshSettings } = useSettings();
 
     return (
         <footer className="w-full text-white" style={{ background: '#001529', paddingTop: '4rem', paddingBottom: '2.5rem' }}>
@@ -21,16 +20,19 @@ export default function Footer() {
                     <div className="flex flex-col gap-4 items-center md:items-start">
                         <h3 className="text-lg font-bold" style={{ color: '#D8C28A' }}>Contato</h3>
                         <div className="flex flex-col gap-1.5 opacity-90 text-sm">
-                            <p>Email: contato@lunarlocacoes.com.br</p>
+                            {email && (
+                                <p>Email: {email}</p>
+                            )}
                             {whatsappNumber && (
-                                <a
-                                    href={getWhatsAppLink()}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="hover:text-yellow-500 transition-colors cursor-pointer"
+                                <button
+                                    onClick={async () => {
+                                        const { whatsapp } = await refreshSettings();
+                                        window.open(getWhatsAppLink(whatsapp), '_blank');
+                                    }}
+                                    className="hover:text-yellow-500 transition-colors cursor-pointer text-left"
                                 >
                                     WhatsApp: {whatsappNumber}
-                                </a>
+                                </button>
                             )}
                         </div>
                     </div>

@@ -9,6 +9,7 @@ export class SettingsService {
             settings = await prisma.settings.create({
                 data: {
                     whatsapp: '',
+                    email: '',
                 },
             });
         }
@@ -16,12 +17,12 @@ export class SettingsService {
         return settings;
     }
 
-    async updateSettings(whatsapp: string) {
+    async updateSettings(whatsapp: string, email: string) {
         const settings = await this.getSettings();
 
         const updated = await prisma.settings.update({
             where: { id: settings.id },
-            data: { whatsapp },
+            data: { whatsapp, email },
         });
         revalidateTag('settings', 'default');
         revalidatePath('/', 'layout');

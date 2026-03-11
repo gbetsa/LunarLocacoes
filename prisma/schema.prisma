@@ -37,6 +37,7 @@ model Product {
 model Settings {
   id        String   @id @default(cuid())
   whatsapp  String?
+  email     String?
   updatedAt DateTime @updatedAt
 }
 

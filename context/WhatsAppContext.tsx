@@ -2,39 +2,50 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-interface WhatsAppContextType {
+interface SettingsContextType {
     whatsappNumber: string;
-    getWhatsAppLink: (message?: string) => string;
+    email: string;
+    getWhatsAppLink: (number?: string, message?: string) => string;
+    refreshSettings: () => Promise<{ whatsapp: string, email: string }>;
     loading: boolean;
 }
 
-const WhatsAppContext = createContext<WhatsAppContextType | undefined>(undefined);
+const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
-export function WhatsAppProvider({ children, initialWhatsapp }: { children: React.ReactNode, initialWhatsapp?: string }) {
+export function SettingsProvider({ children, initialWhatsapp, initialEmail }: { children: React.ReactNode, initialWhatsapp?: string, initialEmail?: string }) {
     const [whatsappNumber, setWhatsappNumber] = useState(initialWhatsapp || '');
-    const [loading, setLoading] = useState(initialWhatsapp === undefined);
+    const [email, setEmail] = useState(initialEmail || '');
+    const [loading, setLoading] = useState(initialWhatsapp === undefined && initialEmail === undefined);
+
+    const fetchLatest = async () => {
+        try {
+            const res = await fetch('/api/settings');
+            const data = await res.json();
+            const newWhatsapp = data.whatsapp || '';
+            const newEmail = data.email || '';
+            setWhatsappNumber(newWhatsapp);
+            setEmail(newEmail);
+            return { whatsapp: newWhatsapp, email: newEmail };
+        } catch (err) {
+            console.error('Error refreshing settings:', err);
+            return { whatsapp: whatsappNumber, email: email };
+        }
+    };
 
     useEffect(() => {
-        if (initialWhatsapp !== undefined) {
-            setWhatsappNumber(initialWhatsapp);
+        if (initialWhatsapp !== undefined || initialEmail !== undefined) {
+            if (initialWhatsapp !== undefined) setWhatsappNumber(initialWhatsapp);
+            if (initialEmail !== undefined) setEmail(initialEmail);
             setLoading(false);
         } else {
             setLoading(true);
-            fetch('/api/settings')
-                .then(res => res.json())
-                .then(data => {
-                    setWhatsappNumber(data.whatsapp || '');
-                    setLoading(false);
-                })
-                .catch(err => {
-                    console.error('Error fetching WhatsApp number:', err);
-                    setLoading(false);
-                });
+            fetchLatest();
         }
-    }, [initialWhatsapp]);
+    }, [initialWhatsapp, initialEmail]);
 
-    const getWhatsAppLink = (message?: string) => {
-        const cleanNumber = whatsappNumber.replace(/\D/g, '');
+    const getWhatsAppLink = (number?: string, message?: string) => {
+        const numToUse = number !== undefined ? number : whatsappNumber;
+        const cleanNumber = numToUse.replace(/\D/g, '');
         const finalNumber = cleanNumber.length <= 11 && cleanNumber.length > 0 ? `55${cleanNumber}` : cleanNumber;
 
         let link = `https://wa.me/${finalNumber}`;
@@ -45,16 +56,22 @@ export function WhatsAppProvider({ children, initialWhatsapp }: { children: Reac
     };
 
     return (
-        <WhatsAppContext.Provider value={{ whatsappNumber, getWhatsAppLink, loading }}>
+        <SettingsContext.Provider value={{
+            whatsappNumber,
+            email,
+            getWhatsAppLink,
+            refreshSettings: fetchLatest,
+            loading
+        }}>
             {children}
-        </WhatsAppContext.Provider>
+        </SettingsContext.Provider>
     );
 }
 
-export function useWhatsApp() {
-    const context = useContext(WhatsAppContext);
+export function useSettings() {
+    const context = useContext(SettingsContext);
     if (context === undefined) {
-        throw new Error('useWhatsApp must be used within a WhatsAppProvider');
+        throw new Error('useSettings must be used within a SettingsProvider');
     }
     return context;
 }
