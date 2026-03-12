@@ -37,7 +37,7 @@ Para reproduzir o ambiente de desenvolvimento localmente, siga as instruções a
 ### 1. Instalação
 
 ```bash
-git clone https://github.com/SEU_USUARIO/lunarlocacoes.git
+git clone https://github.com/gbetsa/lunarlocacoes.git
 cd lunarlocacoes
 npm install
 ```
