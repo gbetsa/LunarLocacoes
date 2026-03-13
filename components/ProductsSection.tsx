@@ -197,6 +197,83 @@ function ProductCard({ product }: { product: Product }) {
     );
 }
 
+// ── Constantes ───────────────────────────────────────────────────────────
+const ITEMS_PER_PAGE = 12;
+
+// ── Componente de Paginação ───────────────────────────────────────────────
+function Pagination({ currentPage, totalPages, onPageChange }: {
+    currentPage: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+}) {
+    if (totalPages <= 1) return null;
+
+    const getPages = () => {
+        const pages: (number | '...')[] = [];
+        if (totalPages <= 7) {
+            return Array.from({ length: totalPages }, (_, i) => i + 1);
+        }
+        pages.push(1);
+        if (currentPage > 3) pages.push('...');
+        for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+            pages.push(i);
+        }
+        if (currentPage < totalPages - 2) pages.push('...');
+        pages.push(totalPages);
+        return pages;
+    };
+
+    const btnBase = 'w-9 h-9 rounded-xl text-sm font-semibold transition-all flex items-center justify-center cursor-pointer';
+
+    return (
+        <div className="flex items-center justify-center gap-1.5 mt-10">
+            <button
+                onClick={() => onPageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`${btnBase} px-3 gap-1.5 w-auto disabled:opacity-30 disabled:cursor-not-allowed`}
+                style={{ background: '#fff', border: '1.5px solid #e5e7eb', color: '#4b5563' }}
+            >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                <span className="hidden sm:inline text-xs">Anterior</span>
+            </button>
+
+            {getPages().map((page, idx) =>
+                page === '...' ? (
+                    <span key={`ellipsis-${idx}`} className="w-9 h-9 flex items-center justify-center text-gray-400 text-sm">…</span>
+                ) : (
+                    <button
+                        key={page}
+                        onClick={() => onPageChange(page as number)}
+                        className={btnBase}
+                        style={{
+                            background: currentPage === page ? '#1e3a8a' : '#fff',
+                            color: currentPage === page ? '#fff' : '#4b5563',
+                            border: `1.5px solid ${currentPage === page ? '#1e3a8a' : '#e5e7eb'}`,
+                            boxShadow: currentPage === page ? '0 4px 12px rgba(30,58,138,0.25)' : '0 1px 3px rgba(0,0,0,0.04)',
+                        }}
+                    >
+                        {page}
+                    </button>
+                )
+            )}
+
+            <button
+                onClick={() => onPageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`${btnBase} px-3 gap-1.5 w-auto disabled:opacity-30 disabled:cursor-not-allowed`}
+                style={{ background: '#fff', border: '1.5px solid #e5e7eb', color: '#4b5563' }}
+            >
+                <span className="hidden sm:inline text-xs">Próxima</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+        </div>
+    );
+}
+
 // ── Seção Principal ──────────────────────────────────────────────────────
 export default function ProductsSection({ initialProducts, categories }: ProductsSectionProps) {
     const { getWhatsAppLink, refreshSettings } = useSettings();
@@ -206,14 +283,17 @@ export default function ProductsSection({ initialProducts, categories }: Product
 
     const [activeCategory, setActiveCategory] = useState('Todos');
     const [searchQuery, setSearchQuery] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
 
-    // Sincroniza os filtros com os parâmetros da URL
+    // Sincroniza os filtros e a página com os parâmetros da URL
     useEffect(() => {
         const cat = searchParams.get('category') || 'Todos';
         const search = searchParams.get('search') || '';
+        const page = parseInt(searchParams.get('page') || '1', 10);
 
         setActiveCategory(cat);
         setSearchQuery(search);
+        setCurrentPage(isNaN(page) || page < 1 ? 1 : page);
 
         // Apenas rola se o usuário estiver fora da seção
         const rect = sectionRef.current?.getBoundingClientRect();
@@ -241,8 +321,26 @@ export default function ProductsSection({ initialProducts, categories }: Product
         } else {
             params.set('category', cat);
         }
-        params.delete('search'); // Limpa a busca quando uma categoria é selecionada
+        params.delete('search');
+        params.delete('page'); // Volta para página 1 ao trocar categoria
         router.push(`/?${params.toString()}`, { scroll: false });
+    };
+
+    const handlePageChange = (page: number) => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (page === 1) {
+            params.delete('page');
+        } else {
+            params.set('page', String(page));
+        }
+        router.push(`/?${params.toString()}`, { scroll: false });
+        // Rola suavemente até o topo da seção de produtos
+        const element = sectionRef.current;
+        if (element) {
+            const offset = 100;
+            const offsetPosition = element.getBoundingClientRect().top + window.pageYOffset - offset;
+            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+        }
     };
 
     const normalizeText = (text: string) => {
@@ -272,6 +370,10 @@ export default function ProductsSection({ initialProducts, categories }: Product
         return initialProducts.filter(p => p.category?.name === catName).length;
     };
 
+    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+    const safePage = Math.min(currentPage, totalPages || 1);
+    const paginatedProducts = filtered.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE);
+
     return (
         <section id="produtos" ref={sectionRef} className="relative" style={{ background: '#f4f6fb', paddingTop: '5rem', paddingBottom: '4rem', minHeight: '600px' }}>
             <div className="max-w-7xl mx-auto px-6 md:px-10">
@@ -288,7 +390,11 @@ export default function ProductsSection({ initialProducts, categories }: Product
                             </span>
                         </div>
                         <p className="text-sm text-gray-500 mt-2">
-                            {searchQuery ? `Encontramos ${filtered.length} itens correspondentes.` : 'Escolha a categoria e encontre o material ideal para sua necessidade.'}
+                            {searchQuery
+                                ? `Encontramos ${filtered.length} itens correspondentes.`
+                                : totalPages > 1
+                                    ? `Página ${safePage} de ${totalPages} — ${filtered.length} itens no total.`
+                                    : 'Escolha a categoria e encontre o material ideal para sua necessidade.'}
                         </p>
                     </div>
                 </div>
@@ -332,11 +438,18 @@ export default function ProductsSection({ initialProducts, categories }: Product
                     {/* Grade de produtos */}
                     <main className="lg:col-span-9 mt-4 lg:mt-0">
                         {filtered.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                                {filtered.map((product) => (
-                                    <ProductCard key={product.id} product={product} />
-                                ))}
-                            </div>
+                            <>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                                    {paginatedProducts.map((product) => (
+                                        <ProductCard key={product.id} product={product} />
+                                    ))}
+                                </div>
+                                <Pagination
+                                    currentPage={safePage}
+                                    totalPages={totalPages}
+                                    onPageChange={handlePageChange}
+                                />
+                            </>
                         ) : (
                             <div className="flex flex-col items-center justify-center p-12 rounded-3xl border border-dashed border-gray-300 bg-white/50 backdrop-blur-sm animate-in fade-in zoom-in duration-500">
                                 <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6 shadow-inner">

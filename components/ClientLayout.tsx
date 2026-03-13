@@ -14,12 +14,14 @@ export default function ClientLayout({
     whatsapp,
     email,
     user,
+    products,
 }: {
     children: React.ReactNode;
     categories: any[];
     whatsapp: string;
     email: string;
     user: AdminUser | null;
+    products: any[];
 }) {
     const pathname = usePathname();
 
@@ -40,7 +42,7 @@ export default function ClientLayout({
                 }}
             />
             {!hideNavbar && <AdminToolbar user={user} />}
-            {!hideNavbar && <Navbar categories={categories} user={user} />}
+            {!hideNavbar && <Navbar categories={categories} user={user} products={products} />}
             {children}
             {!hideNavbar && <Footer />}
         </SettingsProvider>

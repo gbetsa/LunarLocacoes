@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useSettings } from '@/context/WhatsAppContext';
 
@@ -13,7 +13,15 @@ interface Category {
     name: string;
 }
 
-export default function Navbar({ categories, user }: { categories: Category[], user?: AdminUser | null }) {
+interface Product {
+    id: string;
+    name: string;
+    images: string[];
+    category?: { name: string } | null;
+    tags?: string | null;
+}
+
+export default function Navbar({ categories, user, products = [] }: { categories: Category[], user?: AdminUser | null, products?: Product[] }) {
     const { getWhatsAppLink, email, refreshSettings } = useSettings();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -22,10 +30,42 @@ export default function Navbar({ categories, user }: { categories: Category[], u
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
 
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const searchContainerRef = useRef<HTMLDivElement>(null);
+
+    // Fechar dropdown ao clicar fora
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+                setIsSearchFocused(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    // Filtro client-side - rápido e sem dependência de rede
+    const normalizeText = (text: string) =>
+        text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[-\s]/g, '');
+
+    const searchResults = query.trim()
+        ? products
+            .filter(p => {
+                const q = normalizeText(query);
+                return (
+                    normalizeText(p.name).includes(q) ||
+                    (p.category?.name && normalizeText(p.category.name).includes(q)) ||
+                    (p.tags && normalizeText(p.tags).includes(q))
+                );
+            })
+            .slice(0, 5)
+        : [];
+
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 20);
         };
+        handleScroll(); // verifica posição atual ao montar (ex: F5 com scroll restaurado)
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
@@ -74,10 +114,10 @@ export default function Navbar({ categories, user }: { categories: Category[], u
                     </span>
                 </Link>
 
-                {/* Barra de busca */}
-                <div className="flex-1 max-w-md">
+                {/* Barra de busca com Dropdown */}
+                <div className="flex-1 max-w-md relative" ref={searchContainerRef}>
                     <div
-                        className="flex items-center overflow-hidden"
+                        className="flex items-center overflow-hidden relative z-50"
                         style={{
                             background: 'rgba(255,255,255,0.10)',
                             border: '1px solid rgba(255,255,255,0.18)',
@@ -103,13 +143,24 @@ export default function Navbar({ categories, user }: { categories: Category[], u
                                 type="text"
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                onFocus={() => setIsSearchFocused(true)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        setIsSearchFocused(false);
+                                        handleSearch();
+                                    } else if (e.key === 'Escape') {
+                                        setIsSearchFocused(false);
+                                    }
+                                }}
                                 placeholder="Buscar itens..."
                                 className="bg-transparent border-none outline-none w-full py-2 sm:py-2.5 text-sm text-white placeholder-white/30"
                             />
                         </div>
                         <button
-                            onClick={handleSearch}
+                            onClick={() => {
+                                setIsSearchFocused(false);
+                                handleSearch();
+                            }}
                             className="shrink-0 m-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[8px] text-xs font-semibold transition-all hover:brightness-110 active:scale-95 cursor-pointer"
                             style={{
                                 background: 'linear-gradient(135deg, #1e3a8a, #2b52c8)',
@@ -121,6 +172,66 @@ export default function Navbar({ categories, user }: { categories: Category[], u
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </button>
+                    </div>
+
+                    {/* Live Search Dropdown */}
+                    <div className={`absolute top-[calc(100%+8px)] left-0 w-full bg-[#040e3c]/95 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-xl overflow-hidden transition-all duration-300 transform origin-top z-40 ${isSearchFocused && query.trim() ? 'opacity-100 scale-y-100 translate-y-0 visible' : 'opacity-0 scale-y-95 -translate-y-2 invisible pointer-events-none'}`}>
+                        {searchResults.length > 0 ? (
+                            <div className="flex flex-col py-2 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                                {searchResults.map((product) => (
+                                    <Link
+                                        key={product.id}
+                                        href={`/produto/${product.id}`}
+                                        onClick={() => {
+                                            setIsSearchFocused(false);
+                                            setQuery('');
+                                        }}
+                                        className="flex items-center gap-4 px-4 py-3 hover:bg-white/10 transition-colors group cursor-pointer"
+                                    >
+                                        <div className="w-12 h-12 rounded-lg overflow-hidden bg-white/5 relative shrink-0 border border-white/10">
+                                            {product.images && product.images[0] ? (
+                                                <Image src={product.images[0]} alt={product.name} fill className="object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full flex flex-col items-center justify-center text-white/30 text-[9px] font-bold">
+                                                    <span className="text-xl">📦</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-col flex-1 min-w-0 justify-center">
+                                            <span className="text-sm font-semibold text-white/90 truncate group-hover:text-white transition-colors">
+                                                {product.name}
+                                            </span>
+                                            {product.category && (
+                                                <span className="text-[10px] font-bold text-[#D8C28A] uppercase tracking-wider truncate mt-0.5">
+                                                    {product.category.name}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </Link>
+                                ))}
+                                <div className="border-t border-white/10 mt-2">
+                                    <button 
+                                        onClick={() => {
+                                            setIsSearchFocused(false);
+                                            handleSearch();
+                                        }}
+                                        className="w-full px-4 py-3 text-xs font-bold text-white/70 hover:text-white hover:bg-white/5 transition-colors text-center uppercase tracking-wider"
+                                    >
+                                        {searchResults.length >= 5 ? 'Ver todos os resultados' : `Ver resultados na loja`}
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="p-6 text-center flex flex-col items-center justify-center gap-3">
+                                <svg className="w-10 h-10 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
+                                </svg>
+                                <span className="text-sm text-white/60">
+                                    Nenhum item encontrado
+                                </span>
+                            </div>
+                        )}
                     </div>
                 </div>
 

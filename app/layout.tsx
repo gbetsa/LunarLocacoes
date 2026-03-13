@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { settingsService } from "@/lib/services/SettingsService";
 import { categoryService } from "@/lib/services/CategoryService";
+import { productService } from "@/lib/services/ProductService";
 import ClientLayout from "@/components/ClientLayout";
 import AdminToolbar from "@/components/admin/AdminToolbar";
 import { authService } from "@/lib/services/AuthService";
@@ -35,11 +36,11 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Lunar Locações" }],
   creator: "Lunar Locações",
-  metadataBase: new URL("https://lunarlocacoes.com.br"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://lunarlocacoes.com.br"),
   openGraph: {
     type: "website",
     locale: "pt_BR",
-    url: "https://lunarlocacoes.com.br",
+    url: process.env.NEXT_PUBLIC_BASE_URL || "https://lunarlocacoes.com.br",
     siteName: "Lunar Locações",
     title: "Lunar Locações | Equipamentos e Soluções para Locação",
     description:
@@ -76,10 +77,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [categories, settings, user] = await Promise.all([
+  const [categories, settings, user, products] = await Promise.all([
     categoryService.getCategoriesWithProducts(),
     settingsService.getSettings(),
-    authService.getCurrentUser() as Promise<AdminUser | null>
+    authService.getCurrentUser() as Promise<AdminUser | null>,
+    productService.getAllProducts()
   ]);
 
   return (
@@ -92,6 +94,7 @@ export default async function RootLayout({
           whatsapp={settings.whatsapp || ''}
           email={settings.email || ''}
           user={user}
+          products={JSON.parse(JSON.stringify(products))}
         >
           {children}
         </ClientLayout>

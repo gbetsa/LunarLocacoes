@@ -61,6 +61,9 @@ BLOB_READ_WRITE_TOKEN="seu_token_do_vercel_blob"
 # Autenticação JWT
 JWT_SECRET="chave_secreta_para_geracao_dos_tokens_jwt"
 
+# URL Base da Aplicação
+NEXT_PUBLIC_BASE_URL="https://lunarlocacoes.com.br"
+
 # Credenciais de Administrador Padrão (utilizado no Seed Inicial)
 ADMIN_EMAIL="admin@exemplo.com"
 ADMIN_PASSWORD="sua_senha_segura"
