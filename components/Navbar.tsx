@@ -65,6 +65,7 @@ export default function Navbar({ categories, user, products = [] }: { categories
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 20);
         };
+        handleScroll(); // verifica posição atual ao montar (ex: F5 com scroll restaurado)
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
