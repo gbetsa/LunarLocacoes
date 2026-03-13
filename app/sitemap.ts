@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 import { productService } from '@/lib/services/ProductService';
 
-const BASE_URL = 'https://lunarlocacoes.com.br';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://lunarlocacoes.com.br';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const products = await productService.getAllProducts();

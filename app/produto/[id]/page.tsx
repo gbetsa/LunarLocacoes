@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import ProductGallery from '@/components/ProductGallery';
 import ProductContactButton from '@/components/ProductContactButton';
 
-const BASE_URL = 'https://lunarlocacoes.com.br';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://lunarlocacoes.com.br';
 
 interface Props {
     params: Promise<{ id: string }>;

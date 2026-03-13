@@ -36,11 +36,11 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Lunar Locações" }],
   creator: "Lunar Locações",
-  metadataBase: new URL("https://lunarlocacoes.com.br"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://lunarlocacoes.com.br"),
   openGraph: {
     type: "website",
     locale: "pt_BR",
-    url: "https://lunarlocacoes.com.br",
+    url: process.env.NEXT_PUBLIC_BASE_URL || "https://lunarlocacoes.com.br",
     siteName: "Lunar Locações",
     title: "Lunar Locações | Equipamentos e Soluções para Locação",
     description:
