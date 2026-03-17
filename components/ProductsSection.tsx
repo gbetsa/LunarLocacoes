@@ -100,9 +100,6 @@ function ProductCard({ product }: { product: Product }) {
             });
         }
         addToCart(product);
-        toast.success(`${product.name} adicionado à sacola!`, {
-            icon: '🛍️',
-        });
     };
 
     const handleDirectWhatsApp = async (e: React.MouseEvent) => {

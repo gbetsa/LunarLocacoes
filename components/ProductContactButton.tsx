@@ -24,9 +24,6 @@ export default function ProductContactButton({ product }: ProductContactButtonPr
             });
         }
         addToCart(product);
-        toast.success(`${product.name} adicionado à sacola!`, {
-            icon: '🛍️',
-        });
     };
 
     return (
